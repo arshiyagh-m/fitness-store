@@ -13,8 +13,8 @@ const OtpSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 120, // سند پس از 120 ثانیه (2 دقیقه) خودکار از دیتابیس پاک می‌شود
-  }
+    expires: 120, // سند پس از ۱۲۰ ثانیه (۲ دقیقه) به طور خودکار از دیتابیس پاک می‌شود
+  },
 });
 
 const Otp = mongoose.model('Otp', OtpSchema);
