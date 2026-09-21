@@ -18,11 +18,21 @@ const useProductStore = create((set) => ({
     }
   },
 
+  // تابع جدید برای دریافت جزئیات یک محصول با Slug
+  fetchProductDetail: async (slug) => {
+    set({ isLoading: true, error: null, productDetail: null });
+    try {
+      const { data } = await api.get(`/products/${slug}`);
+      set({ productDetail: data, isLoading: false });
+    } catch (error) {
+      set({ error: error.response?.data?.message || error.message, isLoading: false });
+    }
+  },
+
   deleteProduct: async (id) => {
     set({ isLoading: true, error: null });
     try {
       await api.delete(`/products/${id}`);
-      // حذف محصول از لیست فعلی استیت بدون نیاز به رفرش
       set((state) => ({
         products: state.products.filter((p) => p._id !== id),
         isLoading: false
