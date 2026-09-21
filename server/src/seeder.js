@@ -82,3 +82,37 @@ const sampleProducts = [
     isActive: true,
   },
   {
+    title: 'آمینو انرژی اپتیموم نوتریشن (BCAA + Energy)',
+    slug: 'optimum-nutrition-amino-energy',
+    brand: 'Optimum Nutrition',
+    category: 'amino',
+    description: 'ترکیبی از آمینواسیدهای ضروری و کافئین طبیعی برای انرژی قبل تمرین و ریکاوری بعد از آن.',
+    images: ['amino-placeholder'],
+    attributes: { form: 'powder', servingSize: '2 Scoops (9g)', servingsPerContainer: 30 },
+    nutritionFacts: [
+      { ingredient: 'Amino Blend', amount: '5g', dailyValue: '-' },
+      { ingredient: 'Caffeine', amount: '100mg', dailyValue: '-' }
+    ],
+    variants: [
+      { sku: 'ON-AE-WM-270G', flavor: 'هندوانه', weight: '270g', price: 1450000, discountPrice: 1250000, stock: 40 }
+    ],
+    isActive: true,
+  }
+];
+
+const importData = async () => {
+  try {
+    await Product.deleteMany();
+    console.log('Previous products deleted.');
+
+    await Product.insertMany(sampleProducts);
+    console.log('Mock Products Imported Successfully!');
+
+    process.exit();
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+importData();
