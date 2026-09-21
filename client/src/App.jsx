@@ -6,6 +6,7 @@ import Footer from './components/layout/Footer';
 import Login from './pages/Login/Login';
 import AdminProducts from './pages/Admin/AdminProducts';
 import Home from './pages/Home/Home';
+import ProductDetail from './pages/ProductDetail/ProductDetail';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -30,6 +31,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin/products" element={<AdminProducts />} />
+          {/* مسیر جدید برای صفحه جزئیات محصول اضافه شد */}
+          <Route path="/product/:slug" element={<ProductDetail />} />
         </Routes>
       </Layout>
     </Router>
