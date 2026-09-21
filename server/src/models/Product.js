@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const ProductSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true }, // برای URLهای سئو فرندلی
+    slug: { type: String, required: true, unique: true },
     brand: { type: String, required: true },
     category: {
       type: String,
@@ -12,48 +12,33 @@ const ProductSchema = new mongoose.Schema(
       required: true,
     },
     description: { type: String, required: true },
-    images: [{ type: String }], // مسیر عکس‌ها
-
-    // مشخصات کلی مصرف
+    images: [{ type: String }],
     attributes: {
       form: { type: String, enum: ['powder', 'pill', 'liquid', 'bar'], default: 'powder' },
-      servingSize: { type: String }, // مثلا: "1 Scoop (30g)"
-      servingsPerContainer: { type: Number }, // مثلا: 75 سروینگ
+      servingSize: { type: String },
+      servingsPerContainer: { type: Number },
     },
-
-    // جدول ارزش غذایی
     nutritionFacts: [
-      {
-        ingredient: { type: String }, // مثلا: Protein
-        amount: { type: String },     // مثلا: 24g
-        dailyValue: { type: String }, // مثلا: 48%
-      }
+      { ingredient: { type: String }, amount: { type: String }, dailyValue: { type: String } }
     ],
-
-    // متغیرهای کالا (طعم و وزن) - بخش کلیدی دیجی‌کالا
     variants: [
       {
-        sku: { type: String, required: true, unique: true }, // کد اختصاصی انبار
-        flavor: { type: String }, // مثلا: شکلات، وانیل
-        weight: { type: String }, // مثلا: 2.2kg
+        sku: { type: String, required: true, unique: true },
+        flavor: { type: String },
+        weight: { type: String },
         price: { type: Number, required: true },
-        discountPrice: { type: Number }, // در صورت داشتن تخفیف
+        discountPrice: { type: Number },
         stock: { type: Number, required: true, default: 0 },
-        
-        // برچسب‌های اصالت و سلامت
         authenticity: {
           batchNumber: { type: String },
           expiryDate: { type: Date },
-          sibSalamat: { type: String }, // کد سیب سلامت
+          sibSalamat: { type: String },
         }
       }
     ],
-
     isActive: { type: Boolean, default: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Product = mongoose.model('Product', ProductSchema);
