@@ -15,7 +15,6 @@ const Header = () => {
         
         <div className="flex items-center gap-6 w-full lg:w-2/3">
           <Link to="/" className="flex items-center gap-2 group">
-            {/* لوگوی جدید با تم زرد و مشکی */}
             <div className="bg-dark text-primary p-2 rounded-xl group-hover:bg-primary group-hover:text-dark transition-colors">
               <Dumbbell size={28} strokeWidth={2.5} />
             </div>
@@ -34,7 +33,10 @@ const Header = () => {
               <UserIcon size={20} className="text-gray-600" />
               <span className="text-sm font-bold text-gray-700 hidden sm:block">{user.name}</span>
               <div className="absolute top-full left-0 mt-2 w-full bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                <button onClick={logout} className="w-full text-right px-4 py-3 text-sm text-rose-500 font-bold hover:bg-rose-50 rounded-xl">خروج</button>
+                {user.role === 'admin' && (
+                  <Link to="/admin/dashboard" className="block w-full text-right px-4 py-3 text-sm text-gray-700 font-bold hover:bg-gray-50 border-b border-gray-100">پنل مدیریت</Link>
+                )}
+                <button onClick={logout} className="w-full text-right px-4 py-3 text-sm text-rose-500 font-bold hover:bg-rose-50 rounded-b-xl">خروج</button>
               </div>
             </div>
           ) : (
@@ -57,10 +59,11 @@ const Header = () => {
       
       <nav className="border-t border-gray-100 hidden lg:block bg-dark">
         <div className="container mx-auto px-4 flex items-center gap-8 text-sm font-bold text-gray-300 h-12">
-          <div className="flex items-center gap-2 cursor-pointer text-primary hover:text-primary-hover transition-colors">
+          {/* لینک شدن دکمه اصلی به صفحه آرشیو */}
+          <Link to="/archive" className="flex items-center gap-2 text-primary hover:text-primary-hover transition-colors">
             <Menu size={18} />
-            <span>دسته‌بندی‌ها</span>
-          </div>
+            <span>همه محصولات</span>
+          </Link>
           <span className="text-gray-700">|</span>
           <Link to="/archive?category=whey" className="hover:text-white transition-colors">پروتئین وی</Link>
           <Link to="/archive?category=creatine" className="hover:text-white transition-colors">کراتین</Link>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Home from './pages/Home/Home';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
@@ -7,35 +7,41 @@ import Cart from './pages/Cart/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import Login from './pages/Login/Login';
 import Archive from './pages/Archive/Archive';
+import AdminLayout from './components/layout/AdminLayout';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminOrders from './pages/Admin/AdminOrders';
+import AdminProducts from './pages/Admin/AdminProducts';
+import AdminAddProduct from './pages/Admin/AdminAddProduct';
+import AdminSettings from './pages/Admin/AdminSettings';
 
 const SafeFooter = () => (
-  <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">
-    کلیه حقوق برای فروشگاه Team 9 محفوظ است.
-  </footer>
+  <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">کلیه حقوق برای فروشگاه Team 9 محفوظ است.</footer>
 );
 
-const Layout = ({ children }) => {
+const AppRoutes = () => {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login';
-  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAdmin = location.pathname.startsWith('/admin');
+  const isLogin = location.pathname === '/login';
 
-  // در صفحات لاگین و ادمین، هدر و فوتر اصلی فروشگاه رو نشون نده
-  if (isAuthPage || isAdminPage) return <>{children}</>;
+  if (isAdmin) {
+    return (
+      <AdminLayout>
+        <Routes>
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/products/add" element={<AdminAddProduct />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+        </Routes>
+      </AdminLayout>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      <main className="flex-grow">{children}</main>
-      <SafeFooter />
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <Router>
-      <Layout>
+      {!isLogin && <Header />}
+      <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:slug" element={<ProductDetail />} />
@@ -43,10 +49,14 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
           <Route path="/archive" element={<Archive />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
         </Routes>
-      </Layout>
-    </Router>
+      </main>
+      {!isLogin && <SafeFooter />}
+    </div>
   );
+};
+
+function App() {
+  return <Router><AppRoutes /></Router>;
 }
 export default App;
