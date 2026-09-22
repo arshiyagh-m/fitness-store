@@ -7,11 +7,13 @@ import Cart from './pages/Cart/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import Login from './pages/Login/Login';
 import Archive from './pages/Archive/Archive';
+import Profile from './pages/Profile/Profile';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminOrders from './pages/Admin/AdminOrders';
 import AdminProducts from './pages/Admin/AdminProducts';
 import AdminAddProduct from './pages/Admin/AdminAddProduct';
+import AdminCoupons from './pages/Admin/AdminCoupons';
 import AdminSettings from './pages/Admin/AdminSettings';
 
 const SafeFooter = () => (
@@ -32,6 +34,7 @@ const AppRoutes = () => {
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/products/add" element={<AdminAddProduct />} />
+          <Route path="/admin/coupons" element={<AdminCoupons />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Routes>
       </AdminLayout>
@@ -49,6 +52,7 @@ const AppRoutes = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/login" element={<Login />} />
           <Route path="/archive" element={<Archive />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
       {!isLogin && <SafeFooter />}
