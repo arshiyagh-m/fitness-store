@@ -1,17 +1,18 @@
-// filepath: server/src/routes/authRoutes.js
 import express from 'express';
 import { 
-  registerUser, 
   authUser, 
-  requestOtp, 
-  resetPassword 
+  sendRegisterOtp, 
+  verifyRegisterOtpAndCreate, 
+  sendResetPasswordOtp, 
+  verifyOtpAndResetPassword 
 } from '../controllers/authController.js';
 
 const router = express.Router();
 
-router.post('/register', registerUser);
 router.post('/login', authUser);
-router.post('/request-otp', requestOtp);
-router.post('/reset-password', resetPassword);
+router.post('/register/send-otp', sendRegisterOtp);
+router.post('/register/verify', verifyRegisterOtpAndCreate);
+router.post('/reset-password/send-otp', sendResetPasswordOtp);
+router.post('/reset-password/verify', verifyOtpAndResetPassword);
 
 export default router;

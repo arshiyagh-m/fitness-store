@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, Dumbbell, Ticket, Boxes, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, Dumbbell, Ticket, Boxes, HelpCircle, Receipt } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
 const AdminLayout = ({ children }) => {
@@ -11,6 +11,7 @@ const AdminLayout = ({ children }) => {
     { name: 'داشبورد مدیریتی', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'انبارداری و قفسه‌ها (WMS)', path: '/admin/inventory', icon: <Boxes size={20} /> },
     { name: 'سفارشات و بارنامه‌ها', path: '/admin/orders', icon: <ShoppingCart size={20} /> },
+    { name: 'حسابداری و تراز مالی', path: '/admin/accounting', icon: <Receipt size={20} /> },
     { name: 'کاتالوگ مکمل‌ها', path: '/admin/products', icon: <Package size={20} /> },
     { name: 'پاسخ به سوالات مربی', path: '/admin/questions', icon: <HelpCircle size={20} /> },
     { name: 'مدیریت کاربران', path: '/admin/users', icon: <Users size={20} /> },

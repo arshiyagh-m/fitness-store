@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 
-// کامپوننت‌های لایه اصلی
+// کامپوننت‌های پایه
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import MobileBottomNav from './components/layout/MobileBottomNav';
@@ -40,6 +40,7 @@ import AdminEditProduct from './pages/Admin/AdminEditProduct';
 import AdminCoupons from './pages/Admin/AdminCoupons';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminQA from './pages/Admin/AdminQA';
+import AdminAccounting from './pages/Admin/AdminAccounting';
 import AdminSettings from './pages/Admin/AdminSettings';
 
 const AppRoutes = () => {
@@ -60,6 +61,7 @@ const AppRoutes = () => {
           <Route path="/admin/inventory" element={<AdminWarehouse />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
+          <Route path="/admin/accounting" element={<AdminAccounting />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/products/add" element={<AdminAddProduct />} />
           <Route path="/admin/products/edit/:id" element={<AdminEditProduct />} />
@@ -76,7 +78,6 @@ const AppRoutes = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {!isAuthPage && <Header />}
-      
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -101,8 +102,6 @@ const AppRoutes = () => {
       </main>
       
       <CompareFloatingBar />
-      
-      {/* نوار اختصاصی اپلیکیشنی پایین صفحه در موبایل */}
       <MobileBottomNav />
 
       {!isAuthPage && <Footer />}
@@ -112,9 +111,9 @@ const AppRoutes = () => {
 
 function App() {
   useEffect(() => {
-    const savedBanner = localStorage.getItem('site_banner');
-    if (savedBanner) {
-      const config = JSON.parse(savedBanner);
+    const saved = localStorage.getItem('team9_master_settings');
+    if (saved) {
+      const config = JSON.parse(saved);
       if (config.theme) {
         document.documentElement.setAttribute('data-theme', config.theme);
       }

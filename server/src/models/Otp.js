@@ -1,21 +1,13 @@
-// filepath: server/src/models/Otp.js
 import mongoose from 'mongoose';
 
 const OtpSchema = new mongoose.Schema({
-  phone: {
-    type: String,
-    required: true,
-  },
-  code: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    expires: 120, // سند پس از ۱۲۰ ثانیه (۲ دقیقه) به طور خودکار از دیتابیس پاک می‌شود
+  phone: { type: String, required: true },
+  code: { type: String, required: true },
+  createdAt: { 
+    type: Date, 
+    default: Date.now, 
+    expires: 180 // کد پس از ۳ دقیقه به صورت خودکار از دیتابیس پاک می‌شود
   },
 });
 
-const Otp = mongoose.model('Otp', OtpSchema);
-export default Otp;
+export default mongoose.model('Otp', OtpSchema);

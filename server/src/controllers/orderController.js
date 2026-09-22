@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
+import { sendAutomatedSMS } from '../utils/smsService.js';
 
 export const addOrderItems = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, paymentMethod, totalPrice } = req.body;
@@ -16,6 +17,12 @@ export const addOrderItems = asyncHandler(async (req, res) => {
     totalPrice 
   });
   const createdOrder = await order.save();
+
+  // ارسال خودکار پیامک ثبت سفارش به مشتری
+  sendAutomatedSMS({
+    phone: shippingAddress.phone,
+    message: `ورزشکار عزیز، سفارش #${createdOrder._id.substring(18)} در فروشگاه Team 9 با موفقیت ثبت شد و در حال پردازش انبار است.`
+  });
 
   for (const item of orderItems) {
     const product = await Product.findById(item.product);
@@ -63,7 +70,7 @@ export const getOrderById = asyncHandler(async (req, res) => {
   else { res.status(404); throw new Error('سفارش یافت نشد'); }
 });
 
-// ثبت کد رهگیری پستی و آپدیت لجستیک
+// ارسال پیامک خودکار کد رهگیری پست/تیپاکس به مشتری در لحظه ثبت ادمین
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
   if (order) {
@@ -74,14 +81,17 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     if (req.body.courierCompany) {
       order.courierCompany = req.body.courierCompany;
     }
-    if (req.body.status === 'ارسال شده' && !order.shippedAt) {
-      order.shippedAt = Date.now();
-    }
-    if (req.body.status === 'تحویل داده شده' && !order.deliveredAt) {
-      order.deliveredAt = Date.now();
-    }
 
     const updatedOrder = await order.save();
+
+    // اگر کد رهگیری ثبت شد، فوراً برای مشتری پیامک رهگیری بفرست!
+    if (req.body.postalTrackingCode) {
+      sendAutomatedSMS({
+        phone: order.shippingAddress.phone,
+        message: `سفارش #${order._id.substring(18)} تحویل ${order.courierCompany} گردید.\nکد رهگیری مرسوله:\n${req.body.postalTrackingCode}\nفروشگاه مکمل Team 9`
+      });
+    }
+
     res.json(updatedOrder);
   } else {
     res.status(404); throw new Error('سفارش یافت نشد');
