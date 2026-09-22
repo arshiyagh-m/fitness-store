@@ -1,10 +1,11 @@
 import express from 'express';
-import { addOrderItems } from '../controllers/orderController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { addOrderItems, getMyOrders, getOrders, getOrderById, updateOrderStatus } from '../controllers/orderController.js';
+import { protect, admin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// محافظت شده با protect (فقط کاربری که توکن معتبر دارد می‌تواند سفارش ثبت کند)
-router.route('/').post(protect, addOrderItems);
+router.route('/').post(protect, addOrderItems).get(protect, admin, getOrders);
+router.route('/myorders').get(protect, getMyOrders);
+router.route('/:id').get(protect, admin, getOrderById).put(protect, admin, updateOrderStatus);
 
 export default router;
