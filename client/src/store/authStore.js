@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import api from '../services/api';
 
-// تابع هوشمند تبدیل اعداد فارسی به انگلیسی
 const toEnglishDigits = (str) => {
   if (!str) return '';
   return str.toString()
@@ -23,7 +22,6 @@ const useAuthStore = create((set) => ({
     try {
       const cleanPhone = toEnglishDigits(phone).trim();
       const cleanPassword = toEnglishDigits(password).trim();
-
       const { data } = await api.post('/auth/login', { phone: cleanPhone, password: cleanPassword });
       localStorage.setItem('user', JSON.stringify(data));
       set({ user: data, isLoading: false });
@@ -37,19 +35,84 @@ const useAuthStore = create((set) => ({
     }
   },
 
-  register: async (name, phone, password) => {
+  // ارسال کد پیامک ثبت‌نام
+  sendRegisterOtp: async (phone) => {
+    set({ isLoading: true, error: null });
+    try {
+      const cleanPhone = toEnglishDigits(phone).trim();
+      const { data } = await api.post('/auth/register/send-otp', { phone: cleanPhone });
+      set({ isLoading: false });
+      return data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || 'خطا در ارسال کد تایید',
+        isLoading: false,
+      });
+      return null;
+    }
+  },
+
+  // تایید کد و تکمیل ثبت‌نام
+  verifyRegisterOtp: async (name, phone, password, code) => {
     set({ isLoading: true, error: null });
     try {
       const cleanPhone = toEnglishDigits(phone).trim();
       const cleanPassword = toEnglishDigits(password).trim();
+      const cleanCode = toEnglishDigits(code).trim();
 
-      const { data } = await api.post('/auth/register', { name, phone: cleanPhone, password: cleanPassword });
+      const { data } = await api.post('/auth/register/verify', {
+        name,
+        phone: cleanPhone,
+        password: cleanPassword,
+        code: cleanCode
+      });
       localStorage.setItem('user', JSON.stringify(data));
       set({ user: data, isLoading: false });
       return true;
     } catch (error) {
       set({
-        error: error.response?.data?.message || 'خطا در ثبت‌نام',
+        error: error.response?.data?.message || 'کد تایید نامعتبر است',
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  // ارسال کد بازیابی رمز
+  sendResetOtp: async (phone) => {
+    set({ isLoading: true, error: null });
+    try {
+      const cleanPhone = toEnglishDigits(phone).trim();
+      const { data } = await api.post('/auth/reset-password/send-otp', { phone: cleanPhone });
+      set({ isLoading: false });
+      return data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || 'شماره یافت نشد',
+        isLoading: false,
+      });
+      return null;
+    }
+  },
+
+  // تایید کد و تغییر رمز عبور
+  verifyResetPassword: async (phone, code, newPassword) => {
+    set({ isLoading: true, error: null });
+    try {
+      const cleanPhone = toEnglishDigits(phone).trim();
+      const cleanCode = toEnglishDigits(code).trim();
+      const cleanPassword = toEnglishDigits(newPassword).trim();
+
+      const { data } = await api.post('/auth/reset-password/verify', {
+        phone: cleanPhone,
+        code: cleanCode,
+        newPassword: cleanPassword
+      });
+      set({ isLoading: false });
+      return true;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || 'کد نامعتبر است',
         isLoading: false,
       });
       return false;

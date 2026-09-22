@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ShoppingCart, LogIn, Menu, Dumbbell, User as UserIcon, X, ArrowLeft, Heart } from 'lucide-react';
+import { Search, ShoppingCart, LogIn, Menu, Dumbbell, User as UserIcon, X, ArrowLeft, Heart, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../../store/cartStore';
 import useAuthStore from '../../store/authStore';
 import useProductStore from '../../store/productStore';
 import useWishlistStore from '../../store/wishlistStore';
+import { CATEGORY_TREE } from '../../utils/categories';
 import { formatPrice } from '../../utils/formatters';
 
 const Header = () => {
@@ -17,23 +18,20 @@ const Header = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(CATEGORY_TREE[0]);
   const searchRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) setIsOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const searchResults = searchTerm.trim().length >= 2
-    ? products.filter(p => 
-        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.brand.toLowerCase().includes(searchTerm.toLowerCase())
-      ).slice(0, 5)
+    ? products.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()) || p.brand.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 5)
     : [];
 
   const handleSearchSubmit = (e) => {
@@ -65,7 +63,7 @@ const Header = () => {
                 onChange={(e) => { setSearchTerm(e.target.value); setIsOpen(true); }}
                 onFocus={() => setIsOpen(true)}
                 onKeyDown={handleSearchSubmit}
-                placeholder="جستجو در مکمل‌های تیم ۹ (پروتئین، کراتین، برند...)" 
+                placeholder="جستجو در تمام مکمل‌های اورجینال، برندها و داروها..." 
                 className="bg-transparent border-none outline-none w-full mr-2 text-sm placeholder-gray-400 font-medium" 
               />
               {searchTerm && <button onClick={() => setSearchTerm('')}><X size={16} className="text-gray-400" /></button>}
@@ -76,28 +74,27 @@ const Header = () => {
                 {searchResults.length > 0 ? (
                   <div className="divide-y divide-gray-50">
                     <div className="px-4 py-2 bg-gray-50 text-xs font-bold text-gray-400">پیشنهادات لحظه‌ای:</div>
-                    {searchResults.map((product) => {
-                      const minPrice = product.variants?.[0]?.discountPrice || product.variants?.[0]?.price || 0;
-                      return (
-                        <Link
-                          key={product._id}
-                          to={`/product/${product.slug}`}
-                          onClick={() => setIsOpen(false)}
-                          className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 border border-gray-200">
-                              <Dumbbell size={18} className="text-gray-400" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors line-clamp-1">{product.title}</p>
-                              <span className="text-xs text-gray-400 font-mono uppercase">{product.brand}</span>
-                            </div>
+                    {searchResults.map((product) => (
+                      <Link
+                        key={product._id}
+                        to={`/product/${product.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 border border-gray-200">
+                            <Dumbbell size={18} className="text-gray-400" />
                           </div>
-                          <div className="text-xs font-black text-gray-900 shrink-0 mr-4">{formatPrice(minPrice)} تومان</div>
-                        </Link>
-                      );
-                    })}
+                          <div>
+                            <p className="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors line-clamp-1">{product.title}</p>
+                            <span className="text-xs text-gray-400 font-mono uppercase">{product.brand}</span>
+                          </div>
+                        </div>
+                        <div className="text-xs font-black text-gray-900 shrink-0 mr-4">
+                          {formatPrice(product.variants?.[0]?.discountPrice || product.variants?.[0]?.price || 0)} تومان
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 ) : (
                   <div className="p-6 text-center text-sm text-gray-500 font-medium">مکملی یافت نشد.</div>
@@ -107,17 +104,11 @@ const Header = () => {
           </div>
         </div>
 
-        {/* اکشن‌های سمت چپ (علاقه‌مندی‌ها، کاربر و سبد خرید) */}
+        {/* اکشن‌ها */}
         <div className="flex items-center gap-3 border-r border-gray-200 pr-4">
-          
-          {/* دکمه لیست علاقه‌مندی‌ها */}
-          <Link to="/wishlist" className="relative p-2.5 bg-gray-50 hover:bg-rose-50 rounded-xl transition-colors border border-gray-200 text-gray-600 hover:text-rose-500" title="علاقه‌مندی‌ها">
+          <Link to="/wishlist" className="relative p-2.5 bg-gray-50 hover:bg-rose-50 rounded-xl transition-colors border border-gray-200 text-gray-600 hover:text-rose-500">
             <Heart size={20} className={wishlistItems.length > 0 ? 'text-rose-500 fill-rose-500' : ''} />
-            {wishlistItems.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black h-4 w-4 flex items-center justify-center rounded-full shadow-sm">
-                {wishlistItems.length}
-              </span>
-            )}
+            {wishlistItems.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black h-4 w-4 rounded-full flex items-center justify-center">{wishlistItems.length}</span>}
           </Link>
 
           {user ? (
@@ -126,40 +117,104 @@ const Header = () => {
               <span className="text-sm font-bold text-gray-700 hidden sm:block">{user.name}</span>
               <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <Link to="/profile" className="block w-full text-right px-4 py-3 text-sm text-gray-700 font-bold hover:bg-gray-50 border-b border-gray-100">پروفایل من</Link>
-                {user.role === 'admin' && (
-                  <Link to="/admin/dashboard" className="block w-full text-right px-4 py-3 text-sm text-primary font-bold hover:bg-gray-50 border-b border-gray-100 bg-dark">پنل مدیریت</Link>
-                )}
+                {user.role === 'admin' && <Link to="/admin/dashboard" className="block w-full text-right px-4 py-3 text-sm text-primary font-bold hover:bg-gray-50 border-b border-gray-100 bg-dark">پنل مدیریت</Link>}
                 <button onClick={logout} className="w-full text-right px-4 py-3 text-sm text-rose-500 font-bold hover:bg-rose-50 rounded-b-xl">خروج</button>
               </div>
             </div>
           ) : (
             <Link to="/login" className="flex items-center gap-2 bg-dark text-white rounded-xl px-5 py-2.5 hover:bg-gray-800 transition-colors shadow-md">
-              <LogIn size={20} className="text-primary" />
-              <span className="text-sm font-bold hidden sm:block">ورود</span>
+              <LogIn size={20} className="text-primary" /><span className="text-sm font-bold hidden sm:block">ورود</span>
             </Link>
           )}
 
           <Link to="/cart" className="relative p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200">
             <ShoppingCart size={22} className="text-dark" />
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-dark text-[11px] font-black h-5 w-5 flex items-center justify-center rounded-full shadow-md animate-bounce">
-                {totalItems}
-              </span>
-            )}
+            {totalItems > 0 && <span className="absolute -top-2 -right-2 bg-primary text-dark text-[11px] font-black h-5 w-5 flex items-center justify-center rounded-full shadow-md animate-bounce">{totalItems}</span>}
           </Link>
         </div>
       </div>
       
-      <nav className="border-t border-gray-100 hidden lg:block bg-dark">
+      {/* 🚀 مگامنو دیجی‌کالایی (Mega Menu) نوار مشکی */}
+      <nav className="border-t border-gray-100 hidden lg:block bg-dark relative">
         <div className="container mx-auto px-4 flex items-center gap-8 text-sm font-bold text-gray-300 h-12">
-          <Link to="/archive" className="flex items-center gap-2 text-primary hover:text-primary-hover transition-colors"><Menu size={18} /><span>همه محصولات</span></Link>
+          
+          {/* دکمه باز شدن مگامنو */}
+          <div 
+            onMouseEnter={() => setMegaMenuOpen(true)}
+            className="flex items-center gap-2 text-primary hover:text-primary-hover cursor-pointer py-3"
+          >
+            <Menu size={18} />
+            <span>دسته‌بندی جامع کالاها</span>
+            <ChevronDown size={14} />
+          </div>
+
           <span className="text-gray-700">|</span>
-          <Link to="/archive?category=whey" className="hover:text-white transition-colors">پروتئین وی</Link>
-          <Link to="/archive?category=creatine" className="hover:text-white transition-colors">کراتین</Link>
-          <Link to="/archive?category=gainer" className="hover:text-white transition-colors">گینر</Link>
-          <Link to="/archive?category=amino" className="hover:text-white transition-colors">آمینو و BCAA</Link>
-          <Link to="/archive?category=pre-workout" className="hover:text-white transition-colors">پمپ</Link>
+          <Link to="/archive?category=protein-gainer" className="hover:text-white transition-colors">پروتئین و گینر</Link>
+          <Link to="/archive?category=amino-performance" className="hover:text-white transition-colors">کراتین و آمینو</Link>
+          <Link to="/archive?category=weight-loss" className="hover:text-white transition-colors">چربی‌سوزها</Link>
+          <Link to="/archive?category=vitamins-minerals" className="hover:text-white transition-colors">ویتامین‌ها</Link>
+          <Link to="/archive?category=health-recovery" className="hover:text-white transition-colors">مفاصل و ریکاوری</Link>
+          <Link to="/archive?category=pharma-medical" className="hover:text-white transition-colors">داروخانه ورزشی</Link>
+          <Link to="/archive?category=gear-accessories" className="hover:text-white transition-colors">تجهیزات و شیکر</Link>
         </div>
+
+        {/* پنل مگامنو کشویی دو ستونه */}
+        {megaMenuOpen && (
+          <div 
+            onMouseLeave={() => setMegaMenuOpen(false)}
+            className="absolute top-full right-0 left-0 bg-white border-b-2 border-primary shadow-2xl z-50 text-gray-800"
+          >
+            <div className="container mx-auto flex min-h-[380px]">
+              
+              {/* ستون راست: ۷ دسته اصلی مادر */}
+              <div className="w-1/4 bg-gray-50 p-4 border-l border-gray-100 space-y-1">
+                {CATEGORY_TREE.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onMouseEnter={() => setActiveCategory(cat)}
+                    onClick={() => { setMegaMenuOpen(false); navigate(`/archive?category=${cat.id}`); }}
+                    className={`w-full text-right px-4 py-3 rounded-xl text-xs font-black flex items-center justify-between transition-all ${
+                      activeCategory.id === cat.id ? 'bg-primary text-dark shadow-md' : 'text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <span>{cat.name}</span>
+                    <ArrowLeft size={14} />
+                  </button>
+                ))}
+              </div>
+
+              {/* ستون چپ: تمام زیردسته‌های دقیق */}
+              <div className="w-3/4 p-8">
+                <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-100">
+                  <h3 className="font-black text-dark text-base flex items-center gap-2">
+                    مشاهده همه محصولات {activeCategory.name}
+                  </h3>
+                  <Link 
+                    to={`/archive?category=${activeCategory.id}`} 
+                    onClick={() => setMegaMenuOpen(false)}
+                    className="text-xs font-bold text-primary hover:underline"
+                  >
+                    کاتالوگ کامل این دسته ←
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  {activeCategory.subcategories.map((sub, idx) => (
+                    <Link
+                      key={idx}
+                      to={`/archive?category=${activeCategory.id}&subcategory=${encodeURIComponent(sub)}`}
+                      onClick={() => setMegaMenuOpen(false)}
+                      className="p-3 bg-gray-50 rounded-xl text-xs font-bold text-gray-700 hover:bg-dark hover:text-primary transition-all border border-gray-100"
+                    >
+                      {sub}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   );

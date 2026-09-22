@@ -4,26 +4,28 @@ const ProductSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
   brand: { type: String, required: true },
-  category: { type: String, required: true },
-  description: { type: String, required: true },
-  images: [{ type: String }], // آرایه چند تصویری
   
-  // مشخصات تخصصی فیتنس
+  // دسته‌بندی مادر و زیردسته تخصصی
+  category: { type: String, required: true }, // دسته مادر
+  subcategory: { type: String, default: '' }, // زیردسته دقیق
+  
+  description: { type: String, required: true },
+  images: [{ type: String }],
+  
   attributes: {
-    country: { type: String, default: 'آمریکا' }, // کشور سازنده
-    targetGoal: { type: String, default: 'عضله‌سازی' }, // هدف: عضله‌سازی، حجم، کات، انرژی
-    form: { type: String, default: 'پودر' }, // پودر، کپسول، قرص
-    servingSize: { type: String, default: '30 گرم' }, // اندازه اسکوپ
-    servingsPerContainer: { type: Number, default: 60 }, // تعداد کل سروینگ‌ها
+    country: { type: String, default: 'آمریکا' },
+    targetGoal: { type: String, default: 'عضله‌سازی' },
+    form: { type: String, default: 'پودر' },
+    servingSize: { type: String, default: '30 گرم' },
+    servingsPerContainer: { type: Number, default: 60 },
   },
 
-  // مشخصات ارزش غذایی در هر سروینگ
   nutritionFacts: {
-    protein: { type: String, default: '0' }, // گرم پروتئین
-    bcaa: { type: String, default: '0' }, // گرم BCAA
-    calories: { type: String, default: '0' }, // کالری
-    carbs: { type: String, default: '0' }, // کربوهیدرات
-    sugar: { type: String, default: '0' }, // شکر
+    protein: { type: String, default: '0' },
+    bcaa: { type: String, default: '0' },
+    calories: { type: String, default: '0' },
+    carbs: { type: String, default: '0' },
+    sugar: { type: String, default: '0' },
   },
 
   variants: [{
