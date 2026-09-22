@@ -20,8 +20,6 @@ const ProductDetail = () => {
   
   const [currentVariant, setCurrentVariant] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
-  // تب‌های پایین صفحه: نظرات کاربران یا پرسش و پاسخ
   const [bottomTab, setBottomTab] = useState('reviews'); // reviews | qa
   
   // زوم
@@ -33,7 +31,7 @@ const ProductDetail = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  // پرسش و پاسخ
+  // پرسش و پاسخ واقعی متصل به دیتابیس
   const [questionText, setQuestionText] = useState('');
   const [questionsList, setQuestionsList] = useState([]);
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
@@ -45,8 +43,9 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (product?._id) {
-      // فراخوانی سوالات واقعی محصول از دیتابیس
-      api.get(`/questions/product/${product._id}`).then(res => setQuestionsList(res.data)).catch(() => {});
+      api.get(`/questions/product/${product._id}`)
+        .then(res => setQuestionsList(res.data))
+        .catch(() => {});
     }
   }, [product]);
 
@@ -67,7 +66,7 @@ const ProductDetail = () => {
 
   const handleSendReview = async (e) => {
     e.preventDefault();
-    if (!user) return alert('برای ثبت نظر لطفاً وارد شوید.');
+    if (!user) return alert('برای ثبت نظر ابتدا وارد حساب کاربری شوید.');
     setIsSubmittingReview(true);
     try {
       await api.post(`/products/${product._id}/reviews`, {
@@ -86,7 +85,7 @@ const ProductDetail = () => {
 
   const handleSendQuestion = async (e) => {
     e.preventDefault();
-    if (!user) return alert('برای ثبت سوال لطفاً وارد شوید.');
+    if (!user) return alert('برای ارسال سوال ابتدا وارد شوید.');
     if (!questionText.trim()) return;
     setIsSubmittingQuestion(true);
     try {
@@ -94,7 +93,7 @@ const ProductDetail = () => {
         productId: product._id,
         question: questionText,
       });
-      alert('پرسش شما برای کارشناسان تغذیه ارسال شد!');
+      alert('پرسش شما برای کارشناسان تغذیه Team 9 ارسال شد.');
       setQuestionsList([data, ...questionsList]);
       setQuestionText('');
     } catch (err) {
@@ -115,28 +114,30 @@ const ProductDetail = () => {
   const uniqueWeights = [...new Set(product.variants?.map(v => v.weight))].filter(Boolean);
 
   const handleVariantChange = (type, value) => {
-    const targetFlavor = type === 'flavor' ? value : currentVariant.flavor;
-    const targetWeight = type === 'weight' ? value : currentVariant.weight;
+    const targetFlavor = type === 'flavor' ? value : currentVariant?.flavor;
+    const targetWeight = type === 'weight' ? value : currentVariant?.weight;
     const found = product.variants.find(v => v.flavor === targetFlavor && v.weight === targetWeight);
     if (found) setCurrentVariant(found);
   };
 
   const activePrice = currentVariant?.discountPrice || currentVariant?.price || 0;
-  const isOutOfStock = currentVariant?.stock === 0;
+  const isOutOfStock = !currentVariant || currentVariant.stock === 0;
   const relatedProducts = products.filter(p => p.category === product.category && p._id !== product._id).slice(0, 4);
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 pt-6 font-sans">
+    <div className="bg-gray-50 min-h-screen pb-28 lg:pb-20 pt-6 font-sans">
       <div className="container mx-auto px-4 max-w-6xl">
         <nav className="flex items-center text-xs text-gray-500 mb-6 gap-2">
           <Link to="/">تیم ۹</Link><ChevronRight size={14}/><span className="text-gray-800 font-bold">{product.title}</span>
         </nav>
 
-        {/* جعبه اصلی محصول */}
+        {/* باکس اصلی محصول */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 mb-8 relative">
           <button 
             onClick={() => toggleWishlist(product)}
-            className={`absolute top-6 left-6 p-3 rounded-2xl border transition-all z-10 ${isFavorite ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-md' : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-rose-500'}`}
+            className={`absolute top-6 left-6 p-3 rounded-2xl border transition-all z-10 ${
+              isFavorite ? 'bg-rose-50 border-rose-200 text-rose-500 shadow-md' : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-rose-500'
+            }`}
           >
             <Heart size={20} className={isFavorite ? 'fill-rose-500' : ''} />
           </button>
@@ -166,9 +167,11 @@ const ProductDetail = () => {
                   <button
                     key={i}
                     onClick={() => setActiveImageIndex(i)}
-                    className={`w-16 h-16 rounded-2xl border-2 overflow-hidden bg-white p-1 transition-all ${activeImageIndex === i ? 'border-primary shadow-lg scale-105' : 'border-gray-200 opacity-60 hover:opacity-100'}`}
+                    className={`w-16 h-16 rounded-2xl border-2 overflow-hidden bg-white p-1 transition-all ${
+                      activeImageIndex === i ? 'border-primary shadow-lg scale-105' : 'border-gray-200 opacity-60 hover:opacity-100'
+                    }`}
                   >
-                    <img src={img} alt="نمای کوچک" className="w-full h-full object-contain" />
+                    <img src={img} alt="نمای کالا" className="w-full h-full object-contain" />
                   </button>
                 ))}
               </div>
@@ -190,7 +193,7 @@ const ProductDetail = () => {
               <span className="font-bold text-dark bg-gray-100 px-3 py-1 rounded-lg uppercase">{product.brand}</span>
               <span className="flex items-center gap-1"><Globe size={14}/> مبدا: <strong>{product.attributes?.country || 'آمریکا'}</strong></span>
               <div className="flex items-center gap-1 text-amber-500 font-bold bg-amber-50 px-2.5 py-1 rounded-xl">
-                <Star size={14} fill="currentColor" /> {product.rating || 5} ({product.numReviews || 0} نظر)
+                <Star size={14} fill="currentColor" /> {product.rating ? product.rating.toFixed(1) : '۵.۰'} ({product.numReviews || 0} نظر تایید شده)
               </div>
             </div>
 
@@ -201,7 +204,15 @@ const ProductDetail = () => {
                     <span className="text-sm font-bold text-gray-800 block mb-2">طعم: <span className="text-primary font-black">{currentVariant.flavor}</span></span>
                     <div className="flex flex-wrap gap-2">
                       {uniqueFlavors.map(flavor => (
-                        <button key={flavor} onClick={() => handleVariantChange('flavor', flavor)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${currentVariant.flavor === flavor ? 'border-primary bg-primary text-dark shadow-md' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>{flavor}</button>
+                        <button 
+                          key={flavor} 
+                          onClick={() => handleVariantChange('flavor', flavor)} 
+                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                            currentVariant.flavor === flavor ? 'border-primary bg-primary text-dark shadow-md' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {flavor}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -211,7 +222,15 @@ const ProductDetail = () => {
                     <span className="text-sm font-bold text-gray-800 block mb-2">وزن: <span className="text-dark font-black">{currentVariant.weight}</span></span>
                     <div className="flex flex-wrap gap-2">
                       {uniqueWeights.map(weight => (
-                        <button key={weight} onClick={() => handleVariantChange('weight', weight)} className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${currentVariant.weight === weight ? 'border-dark bg-dark text-primary shadow-md' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>{weight}</button>
+                        <button 
+                          key={weight} 
+                          onClick={() => handleVariantChange('weight', weight)} 
+                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                            currentVariant.weight === weight ? 'border-dark bg-dark text-primary shadow-md' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {weight}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -219,10 +238,12 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* کارت قیمت و دکمه خرید */}
+            <div className="text-sm text-gray-600 leading-relaxed text-justify mb-6">{product.description}</div>
+
+            {/* کارت قیمت و دکمه خرید در دسکتاپ */}
             <div className="mt-auto bg-gray-50 p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div>
-                <span className="text-xs text-gray-400 block mb-1">قیمت برای مصرف کننده:</span>
+                <span className="text-xs text-gray-400 block mb-1">قیمت نهایی مصرف‌کننده:</span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-black text-gray-900">{formatPrice(activePrice)}</span>
                   <span className="text-sm font-bold text-gray-500">تومان</span>
@@ -231,7 +252,9 @@ const ProductDetail = () => {
               <button 
                 disabled={isOutOfStock} 
                 onClick={() => addToCart(product, currentVariant, 1)} 
-                className={`w-full sm:w-auto px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-lg ${isOutOfStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-primary text-dark hover:bg-primary-hover hover:-translate-y-1'}`}
+                className={`w-full sm:w-auto px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-lg ${
+                  isOutOfStock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-primary text-dark hover:bg-primary-hover hover:-translate-y-1'
+                }`}
               >
                 <ShoppingCart size={20} /> {isOutOfStock ? 'ناموجود در انبار' : 'افزودن به سبد خرید'}
               </button>
@@ -239,45 +262,37 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* بخش جادویی دوگانه: تب‌های نظرات کاربران و پرسش و پاسخ مربیان */}
+        {/* تب‌های دوقلو: نظرات کاربران و پرسش و پاسخ مربیان */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-          
-          {/* نوار انتخاب تب‌ها */}
           <div className="flex border-b border-gray-100 bg-gray-50/70 p-2 gap-2">
             <button
               onClick={() => setBottomTab('reviews')}
               className={`flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
-                bottomTab === 'reviews' 
-                  ? 'bg-white text-dark shadow-sm' 
-                  : 'text-gray-500 hover:text-dark'
+                bottomTab === 'reviews' ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-dark'
               }`}
             >
               <MessageSquare size={18} className={bottomTab === 'reviews' ? 'text-primary' : ''}/>
-              نظرات و نقد کاربران ({product.reviews?.length || 0})
+              نظرات و نقد خریداران ({product.reviews?.length || 0})
             </button>
             <button
               onClick={() => setBottomTab('qa')}
               className={`flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
-                bottomTab === 'qa' 
-                  ? 'bg-white text-dark shadow-sm' 
-                  : 'text-gray-500 hover:text-dark'
+                bottomTab === 'qa' ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-dark'
               }`}
             >
               <HelpCircle size={18} className={bottomTab === 'qa' ? 'text-primary' : ''}/>
-              پرسش و پاسخ و مشاوره مربیان ({questionsList.length})
+              مشاوره و پرسش از مربیان ({questionsList.length})
             </button>
           </div>
 
           <div className="p-8">
-            
-            {/* تب ۱: نظرات و ستاره‌های کاربران */}
             {bottomTab === 'reviews' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1">
                   <form onSubmit={handleSendReview} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
-                    <h3 className="font-bold text-gray-900 text-sm">ثبت نظر و امتیاز</h3>
+                    <h3 className="font-bold text-gray-900 text-sm">ثبت تجربه مصرف مکمل</h3>
                     <div>
-                      <span className="block text-xs font-bold text-gray-500 mb-2">امتیاز شما به مکمل:</span>
+                      <span className="block text-xs font-bold text-gray-500 mb-2">امتیاز کیفی شما:</span>
                       <div className="flex gap-2">
                         {[1, 2, 3, 4, 5].map((s) => (
                           <button type="button" key={s} onClick={() => setReviewRating(s)}>
@@ -291,18 +306,18 @@ const ProductDetail = () => {
                       rows="4" 
                       value={reviewComment} 
                       onChange={(e) => setReviewComment(e.target.value)} 
-                      placeholder="کیفیت، طعم و نحوه مصرف خود را بنویسید..." 
+                      placeholder="طعم، میزان حل‌شوندگی و نتایج مصرف..." 
                       className="w-full p-4 bg-white border border-gray-200 rounded-xl text-xs outline-none focus:border-primary resize-none"
                     ></textarea>
                     <button type="submit" disabled={isSubmittingReview} className="w-full bg-dark text-primary font-black py-3 rounded-xl hover:bg-gray-800 text-xs flex items-center justify-center gap-2">
-                      <Send size={14}/> {isSubmittingReview ? 'در حال ارسال...' : 'ثبت نظر'}
+                      <Send size={14}/> {isSubmittingReview ? 'در حال ثبت...' : 'ثبت قطعی نظر'}
                     </button>
                   </form>
                 </div>
 
                 <div className="lg:col-span-2 space-y-4">
                   {(!product.reviews || product.reviews.length === 0) ? (
-                    <div className="text-center py-12 text-gray-400 font-bold">اولین نفری باشید که برای این مکمل نظر ثبت می‌کند!</div>
+                    <div className="text-center py-12 text-gray-400 font-bold">هنوز نظری برای این مکمل ثبت نشده است.</div>
                   ) : (
                     product.reviews.map((rev) => (
                       <div key={rev._id} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 space-y-2">
@@ -322,25 +337,21 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* تب ۲: پرسش و پاسخ تخصصی متصل به دیتابیس */}
             {bottomTab === 'qa' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1">
                   <form onSubmit={handleSendQuestion} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
-                    <h3 className="font-bold text-gray-900 text-sm">پرسش از کارشناسان تغذیه</h3>
-                    <p className="text-xs text-gray-500 leading-relaxed">
-                      سوالات دوره، دوز مصرفی و تداخلات این مکمل را بپرسید تا توسط مربیان Team 9 در پنل ادمین پاسخ داده شود.
-                    </p>
+                    <h3 className="font-bold text-gray-900 text-sm">پرسش تخصصی از مربی</h3>
                     <textarea 
                       required 
                       rows="4" 
                       value={questionText} 
                       onChange={(e) => setQuestionText(e.target.value)} 
-                      placeholder="سوال خود را تایپ کنید..." 
+                      placeholder="سوال درباره دوز مصرفی، تداخل یا دوره مکمل..." 
                       className="w-full p-4 bg-white border border-gray-200 rounded-xl text-xs outline-none focus:border-primary resize-none"
                     ></textarea>
                     <button type="submit" disabled={isSubmittingQuestion} className="w-full bg-dark text-primary font-black py-3 rounded-xl hover:bg-gray-800 text-xs flex items-center justify-center gap-2">
-                      <Send size={14}/> {isSubmittingQuestion ? 'در حال ارسال...' : 'ارسال سوال به مربی'}
+                      <Send size={14}/> {isSubmittingQuestion ? 'در حال ارسال...' : 'ارسال به مربیان Team 9'}
                     </button>
                   </form>
                 </div>
@@ -368,7 +379,7 @@ const ProductDetail = () => {
                           </div>
                         ) : (
                           <div className="mr-8 text-xs text-gray-400 italic bg-gray-50 p-2.5 rounded-xl">
-                            در انتظار بررسی و پاسخ مربی تغذیه در پنل مدیریت...
+                            در انتظار پاسخ کارشناس تغذیه در پنل مدیریت...
                           </div>
                         )}
                       </div>
@@ -377,11 +388,10 @@ const ProductDetail = () => {
                 </div>
               </div>
             )}
-
           </div>
         </div>
 
-        {/* محصولات مرتبط */}
+        {/* محصولات پیشنهادی دوره */}
         {relatedProducts.length > 0 && (
           <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm mb-8">
             <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
@@ -394,6 +404,24 @@ const ProductDetail = () => {
         )}
 
       </div>
+
+      {/* 🚀 دکمه خرید چسبان در موبایل (Mobile Sticky Add to Cart) */}
+      <div className="lg:hidden fixed bottom-14 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 p-3 z-40 shadow-lg flex items-center justify-between gap-4">
+        <div>
+          <span className="text-[10px] text-gray-400 block">قیمت:</span>
+          <span className="font-black text-gray-900 text-sm">{formatPrice(activePrice)} تومان</span>
+        </div>
+        <button
+          disabled={isOutOfStock}
+          onClick={() => addToCart(product, currentVariant, 1)}
+          className={`flex-1 py-3 px-6 rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-md ${
+            isOutOfStock ? 'bg-gray-200 text-gray-400' : 'bg-primary text-dark hover:bg-primary-hover'
+          }`}
+        >
+          <ShoppingCart size={16} /> {isOutOfStock ? 'ناموجود' : 'افزودن به سبد'}
+        </button>
+      </div>
+
     </div>
   );
 };

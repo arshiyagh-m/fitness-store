@@ -2,8 +2,13 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import useAuthStore from './store/authStore';
 
-// صفحات کلاینت
+// کامپوننت‌های لایه اصلی
 import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import MobileBottomNav from './components/layout/MobileBottomNav';
+import CompareFloatingBar from './components/common/CompareFloatingBar';
+
+// صفحات کلاینت
 import Home from './pages/Home/Home';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Cart from './pages/Cart/Cart';
@@ -16,7 +21,12 @@ import Profile from './pages/Profile/Profile';
 import Wishlist from './pages/Wishlist/Wishlist';
 import Compare from './pages/Compare/Compare';
 import NotFound from './pages/NotFound/NotFound';
-import CompareFloatingBar from './components/common/CompareFloatingBar';
+
+// صفحات استاتیک و حقوقی
+import AuthenticityGuide from './pages/Static/AuthenticityGuide';
+import ReturnPolicy from './pages/Static/ReturnPolicy';
+import AboutUs from './pages/Static/AboutUs';
+import ContactUs from './pages/Static/ContactUs';
 
 // صفحات ادمین
 import AdminLayout from './components/layout/AdminLayout';
@@ -66,6 +76,7 @@ const AppRoutes = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {!isAuthPage && <Header />}
+      
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -79,17 +90,22 @@ const AppRoutes = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
+          
+          <Route path="/authenticity-guide" element={<AuthenticityGuide />} />
+          <Route path="/returns" element={<ReturnPolicy />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       
       <CompareFloatingBar />
+      
+      {/* نوار اختصاصی اپلیکیشنی پایین صفحه در موبایل */}
+      <MobileBottomNav />
 
-      {!isAuthPage && (
-        <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">
-          کلیه حقوق برای فروشگاه Team 9 محفوظ است.
-        </footer>
-      )}
+      {!isAuthPage && <Footer />}
     </div>
   );
 };
