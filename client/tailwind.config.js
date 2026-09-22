@@ -11,20 +11,12 @@ export default {
       },
       colors: {
         primary: {
-          DEFAULT: '#FBBF24', // زرد/طلایی ورزشی
-          hover: '#F59E0B',
-          light: '#FEF3C7',
-          dark: '#B45309'
+          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
+          hover: 'rgb(var(--color-primary-hover) / <alpha-value>)',
         },
         dark: {
-          DEFAULT: '#111827', // مشکی تیره
-          light: '#374151'
+          DEFAULT: 'rgb(var(--color-dark) / <alpha-value>)',
         },
-        gray: {
-          50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB',
-          400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151',
-          800: '#1F2937', 900: '#111827',
-        }
       }
     },
   },

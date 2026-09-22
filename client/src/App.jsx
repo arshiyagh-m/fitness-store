@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Home from './pages/Home/Home';
@@ -11,14 +11,11 @@ import Profile from './pages/Profile/Profile';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminOrders from './pages/Admin/AdminOrders';
+import AdminOrderDetails from './pages/Admin/AdminOrderDetails';
 import AdminProducts from './pages/Admin/AdminProducts';
 import AdminAddProduct from './pages/Admin/AdminAddProduct';
 import AdminCoupons from './pages/Admin/AdminCoupons';
 import AdminSettings from './pages/Admin/AdminSettings';
-
-const SafeFooter = () => (
-  <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">کلیه حقوق برای فروشگاه Team 9 محفوظ است.</footer>
-);
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -32,6 +29,7 @@ const AppRoutes = () => {
           <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/products/add" element={<AdminAddProduct />} />
           <Route path="/admin/coupons" element={<AdminCoupons />} />
@@ -55,12 +53,23 @@ const AppRoutes = () => {
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
-      {!isLogin && <SafeFooter />}
+      {!isLogin && <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">کلیه حقوق برای فروشگاه Team 9 محفوظ است.</footer>}
     </div>
   );
 };
 
 function App() {
+  // این افکت، تم انتخاب شده را به کل سایت اعمال می‌کند
+  useEffect(() => {
+    const savedBanner = localStorage.getItem('site_banner');
+    if (savedBanner) {
+      const config = JSON.parse(savedBanner);
+      if (config.theme) {
+        document.documentElement.setAttribute('data-theme', config.theme);
+      }
+    }
+  }, []);
+
   return <Router><AppRoutes /></Router>;
 }
 export default App;

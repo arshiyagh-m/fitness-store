@@ -19,16 +19,39 @@
 }
 
 @layer base {
+  :root {
+    /* تم پیش‌فرض: Team 9 (زرد ورزشی) */
+    --color-primary: 251 191 36; /* #FBBF24 */
+    --color-primary-hover: 245 158 11; /* #F59E0B */
+    --color-dark: 17 24 39; /* #111827 */
+  }
+
+  /* تم بلک فرایدی (قرمز آتشین) */
+  [data-theme='black-friday'] {
+    --color-primary: 239 68 68; /* #ef4444 */
+    --color-primary-hover: 220 38 38; /* #dc2626 */
+    --color-dark: 0 0 0; /* Black */
+  }
+
+  /* تم شب یلدا (قرمز تیره و سبز) */
+  [data-theme='yalda'] {
+    --color-primary: 225 29 72; /* #e11d48 (قرمز اناری) */
+    --color-primary-hover: 190 18 60; /* #be123c */
+    --color-dark: 6 78 59; /* #064e3b (سبز یلدایی) */
+  }
+
+  /* تم نوروز (سبز بهاری) */
+  [data-theme='norouz'] {
+    --color-primary: 16 185 129; /* #10b981 (سبز) */
+    --color-primary-hover: 5 150 105; /* #059669 */
+    --color-dark: 17 24 39; /* #111827 */
+  }
+
   body {
-    @apply font-sans bg-white text-gray-700 antialiased;
+    @apply font-sans bg-gray-50 text-gray-700 antialiased;
     direction: rtl;
   }
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
