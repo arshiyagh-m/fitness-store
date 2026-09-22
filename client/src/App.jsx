@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import useAuthStore from './store/authStore';
+
+// صفحات فروشگاه
 import Header from './components/layout/Header';
 import Home from './pages/Home/Home';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
@@ -8,6 +11,9 @@ import Checkout from './pages/Checkout/Checkout';
 import Login from './pages/Login/Login';
 import Archive from './pages/Archive/Archive';
 import Profile from './pages/Profile/Profile';
+import NotFound from './pages/NotFound/NotFound';
+
+// صفحات ادمین
 import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminOrders from './pages/Admin/AdminOrders';
@@ -19,14 +25,18 @@ import AdminSettings from './pages/Admin/AdminSettings';
 
 const AppRoutes = () => {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith('/admin');
+  const { user } = useAuthStore();
+  const isAdminPath = location.pathname.startsWith('/admin');
   const isLogin = location.pathname === '/login';
 
-  if (isAdmin) {
+  if (isAdminPath) {
+    if (!user) return <Navigate to="/login" replace />;
+    if (user.role !== 'admin') return <Navigate to="/" replace />;
+
     return (
       <AdminLayout>
         <Routes>
-          <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
@@ -34,6 +44,7 @@ const AppRoutes = () => {
           <Route path="/admin/products/add" element={<AdminAddProduct />} />
           <Route path="/admin/coupons" element={<AdminCoupons />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Routes>
       </AdminLayout>
     );
@@ -51,15 +62,20 @@ const AppRoutes = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/archive" element={<Archive />} />
           <Route path="/profile" element={<Profile />} />
+          {/* مسیر ۴۰۴ برای تمام صفحات نامعتبر */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isLogin && <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">کلیه حقوق برای فروشگاه Team 9 محفوظ است.</footer>}
+      {!isLogin && (
+        <footer className="bg-dark text-gray-400 text-sm text-center py-6 mt-12 border-t border-gray-800">
+          کلیه حقوق برای فروشگاه Team 9 محفوظ است.
+        </footer>
+      )}
     </div>
   );
 };
 
 function App() {
-  // این افکت، تم انتخاب شده را به کل سایت اعمال می‌کند
   useEffect(() => {
     const savedBanner = localStorage.getItem('site_banner');
     if (savedBanner) {
@@ -70,6 +86,11 @@ function App() {
     }
   }, []);
 
-  return <Router><AppRoutes /></Router>;
+  return (
+    <Router>
+      <AppRoutes />
+    </Router>
+  );
 }
+
 export default App;
