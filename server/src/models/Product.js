@@ -1,44 +1,26 @@
 import mongoose from 'mongoose';
 
-const ProductSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    brand: { type: String, required: true },
-    category: {
-      type: String,
-      enum: ['whey', 'creatine', 'gainer', 'amino', 'pre-workout', 'fat-burner', 'vitamins'],
-      required: true,
-    },
-    description: { type: String, required: true },
-    images: [{ type: String }],
-    attributes: {
-      form: { type: String, enum: ['powder', 'pill', 'liquid', 'bar'], default: 'powder' },
-      servingSize: { type: String },
-      servingsPerContainer: { type: Number },
-    },
-    nutritionFacts: [
-      { ingredient: { type: String }, amount: { type: String }, dailyValue: { type: String } }
-    ],
-    variants: [
-      {
-        sku: { type: String, required: true, unique: true },
-        flavor: { type: String },
-        weight: { type: String },
-        price: { type: Number, required: true },
-        discountPrice: { type: Number },
-        stock: { type: Number, required: true, default: 0 },
-        authenticity: {
-          batchNumber: { type: String },
-          expiryDate: { type: Date },
-          sibSalamat: { type: String },
-        }
-      }
-    ],
-    isActive: { type: Boolean, default: true },
-  },
-  { timestamps: true }
-);
+const ReviewSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  rating: { type: Number, required: true },
+  comment: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+}, { timestamps: true });
 
-const Product = mongoose.model('Product', ProductSchema);
-export default Product;
+const ProductSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
+  brand: { type: String, required: true },
+  category: { type: String, required: true },
+  description: { type: String, required: true },
+  images: [{ type: String }],
+  variants: [{
+    sku: String, flavor: String, weight: String, price: Number, discountPrice: Number, stock: Number
+  }],
+  reviews: [ReviewSchema],
+  rating: { type: Number, required: true, default: 0 },
+  numReviews: { type: Number, required: true, default: 0 },
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
+
+export default mongoose.model('Product', ProductSchema);
