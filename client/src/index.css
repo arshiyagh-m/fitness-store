@@ -1,9 +1,7 @@
-// filepath: client/src/index.css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* لود آفلاین فونت وزیرمتن (فایل‌ها باید در client/public/fonts/ قرار گیرند) */
 @font-face {
   font-family: 'Vazirmatn';
   src: url('/fonts/Vazirmatn-Regular.woff2') format('woff2');
@@ -27,7 +25,6 @@
   }
 }
 
-/* مخفی کردن اسکرول‌بار برای لیست‌های افقی */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }

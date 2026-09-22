@@ -1,4 +1,3 @@
-// filepath: client/tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -8,31 +7,25 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // تنظیم فونت پیش‌فرض به وزیرمتن
         sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // پالت رنگی الهام گرفته از دیجی‌کالا با حس انرژی و ورزش
+        // تغییر رنگ اصلی به زرد/طلایی ورزشی
         primary: {
-          DEFAULT: '#ef4056', // قرمز دیجی‌کالایی
-          hover: '#d33346',
-          light: '#fdeced'
+          DEFAULT: '#FBBF24', // Amber 400 (زرد ورزشی)
+          hover: '#F59E0B',   // Amber 500
+          light: '#FEF3C7',   // Amber 100
+          dark: '#B45309'     // Amber 700
         },
         dark: {
-          DEFAULT: '#242424',
-          light: '#3f3f3f'
+          DEFAULT: '#111827', // Gray 900
+          light: '#374151'    // Gray 700
         },
+        // خاکستری‌ها برای پس‌زمینه و متن
         gray: {
-          50: '#f8f8f8',
-          100: '#f0f0f1',
-          200: '#e0e0e2',
-          300: '#c0c0c4',
-          400: '#a1a3a8',
-          500: '#81858b', // خاکستری متون دیجی‌کالا
-          600: '#62666d',
-          700: '#424750', // خاکستری تیره تیترها
-          800: '#232933',
-          900: '#0c0c0c',
+          50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB',
+          400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151',
+          800: '#1F2937', 900: '#111827',
         }
       }
     },
