@@ -1,14 +1,27 @@
 import express from 'express';
-import { getProducts, getProductById, createProductReview, deleteProduct } from '../controllers/productController.js';
+import { 
+  getProducts, 
+  getProductById, 
+  createProduct, 
+  updateProduct, 
+  deleteProduct, 
+  createProductReview,
+  updateStockQuick
+} from '../controllers/productController.js';
 import { protect, admin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/').get(getProducts);
+router.route('/')
+  .get(getProducts)
+  .post(protect, admin, createProduct);
 
-// اتصال مسیر حذف (DELETE) به همراه محافظت ادمین
+router.route('/stock/quick-update')
+  .put(protect, admin, updateStockQuick);
+
 router.route('/:id')
   .get(getProductById)
+  .put(protect, admin, updateProduct)
   .delete(protect, admin, deleteProduct);
 
 router.route('/:id/reviews').post(protect, createProductReview);

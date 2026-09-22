@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, MapPin, ShoppingBag, LogOut, ChevronLeft, Package, Clock, CheckCircle, Activity, ArrowLeft } from 'lucide-react';
+import { User, ShoppingBag, LogOut, ChevronLeft, Package, Activity, Truck, ExternalLink, Award, Coins, Sparkles, Gift, Heart, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import api from '../../services/api';
@@ -8,7 +8,7 @@ import { formatPrice } from '../../utils/formatters';
 const Profile = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('orders');
+  const [activeTab, setActiveTab] = useState('orders'); // orders | loyalty | info
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,48 +25,154 @@ const Profile = () => {
   }, [user, navigate]);
 
   const handleLogout = () => { logout(); navigate('/'); };
-
   if (!user) return null;
 
+  // محاسبه امتیازات باشگاه مشتریان (هر ۱۰۰ هزار تومان خرید = ۲ امتیاز طلایی)
+  const totalSpent = orders.filter(o => o.isPaid).reduce((acc, o) => acc + o.totalPrice, 0);
+  const loyaltyPoints = Math.floor(totalSpent / 50000);
+  const walletCredit = loyaltyPoints * 1000; // هر امتیاز = ۱۰۰۰ تومان تخفیف
+
+  // سطح کاربر بر اساس خرید
+  const tier = totalSpent > 10000000 ? { name: 'ورزشکار طلایی (VIP)', color: 'text-amber-500 bg-amber-50 border-amber-200' }
+             : totalSpent > 3000000 ? { name: 'ورزشکار نقره‌ای', color: 'text-blue-500 bg-blue-50 border-blue-200' }
+             : { name: 'ورزشکار برنزی', color: 'text-emerald-500 bg-emerald-50 border-emerald-200' };
+
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 pt-6">
+    <div className="bg-gray-50 min-h-screen pb-20 pt-6 font-sans">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* سایدبار پروفایل */}
           <div className="lg:w-1/4">
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 sticky top-24 overflow-hidden">
               <div className="bg-dark p-6 text-center border-b-4 border-primary">
                 <div className="w-20 h-20 bg-gray-800 rounded-full mx-auto mb-4 flex items-center justify-center text-primary text-3xl font-black">{user.name.charAt(0)}</div>
                 <h2 className="text-white font-black text-lg">{user.name}</h2>
+                <div className={`mt-2 inline-block px-3 py-1 rounded-xl text-xs font-black border ${tier.color}`}>
+                  {tier.name}
+                </div>
               </div>
               <div className="p-4 space-y-2">
-                <button onClick={() => setActiveTab('orders')} className={`w-full flex justify-between p-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-primary text-dark shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}><div className="flex gap-3"><ShoppingBag size={20}/>سفارشات</div><ChevronLeft size={16}/></button>
+                <button onClick={() => setActiveTab('orders')} className={`w-full flex justify-between p-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-primary text-dark shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}><div className="flex gap-3"><ShoppingBag size={20}/>سفارشات من</div><ChevronLeft size={16}/></button>
+                <button onClick={() => setActiveTab('loyalty')} className={`w-full flex justify-between p-4 rounded-2xl font-bold transition-all ${activeTab === 'loyalty' ? 'bg-primary text-dark shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}><div className="flex gap-3"><Coins size={20}/>باشگاه مشتریان و امتیازات</div><ChevronLeft size={16}/></button>
+                <Link to="/wishlist" className="w-full flex justify-between p-4 rounded-2xl font-bold text-gray-600 hover:bg-gray-50"><div className="flex gap-3"><Heart size={20} className="text-rose-500"/>نشان‌شده‌ها (علاقه‌مندی)</div><ChevronLeft size={16}/></Link>
                 <button onClick={handleLogout} className="w-full flex gap-3 p-4 rounded-2xl font-bold text-rose-500 hover:bg-rose-50"><LogOut size={20}/>خروج</button>
               </div>
             </div>
           </div>
+
+          {/* محتوای تب‌ها */}
           <div className="lg:w-3/4 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 min-h-[500px]">
+            
+            {/* تب ۱: تاریخچه سفارشات */}
             {activeTab === 'orders' && (
               <div>
-                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2 pb-4 border-b border-gray-100"><Package className="text-primary"/>سفارشات من</h3>
-                {loading ? <Activity className="animate-spin text-primary mx-auto my-10"/> : orders.length === 0 ? <div className="text-center text-gray-500 my-10">سفارشی یافت نشد</div> : (
-                  <div className="space-y-4">
+                <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2 pb-4 border-b border-gray-100"><Package className="text-primary"/>تاریخچه و رهگیری مرسولات من</h3>
+                {loading ? <Activity className="animate-spin text-primary mx-auto my-10"/> : orders.length === 0 ? <div className="text-center text-gray-500 my-10 font-bold">تاکنون سفارشی ثبت نکرده‌اید.</div> : (
+                  <div className="space-y-6">
                     {orders.map((o) => (
-                      <div key={o._id} className="border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-center mb-4">
-                          <div><p className="font-bold">سفارش #{o._id.substring(18)}</p><p className="text-sm text-gray-500 mt-1">{new Date(o.createdAt).toLocaleDateString('fa-IR')}</p></div>
-                          <span className={`px-3 py-1 rounded-lg text-xs font-bold ${o.orderStatus === 'در حال پردازش' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>{o.orderStatus}</span>
+                      <div key={o._id} className="border border-gray-100 rounded-3xl p-6 hover:shadow-md transition-shadow bg-white">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
+                          <div>
+                            <p className="font-black text-gray-900 text-base">سفارش #{o._id.substring(18)}</p>
+                            <p className="text-xs text-gray-400 mt-1">تاریخ ثبت: {new Date(o.createdAt).toLocaleDateString('fa-IR')}</p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-xl text-xs font-black w-max ${
+                            o.orderStatus === 'ارسال شده' ? 'bg-blue-50 text-blue-600' :
+                            o.orderStatus === 'تحویل داده شده' ? 'bg-emerald-50 text-emerald-600' :
+                            'bg-amber-50 text-amber-600'
+                          }`}>
+                            {o.orderStatus}
+                          </span>
                         </div>
-                        <div className="flex justify-between py-4 border-t border-gray-50"><span className="text-sm text-gray-500">{o.orderItems.length} کالا</span><div className="font-black text-gray-900">{formatPrice(o.totalPrice)} <span className="text-xs text-gray-500">تومان</span></div></div>
+
+                        {o.postalTrackingCode && (
+                          <div className="my-4 p-4 bg-gray-50 rounded-2xl border border-gray-200 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div className="flex items-center gap-2 text-xs text-gray-700">
+                              <Truck size={18} className="text-primary shrink-0" />
+                              <span>کد رهگیری {o.courierCompany || 'پست'}: <strong className="font-mono text-dark">{o.postalTrackingCode}</strong></span>
+                            </div>
+                            <a 
+                              href={`https://tracking.post.ir/?id=${o.postalTrackingCode}`} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="text-xs font-black text-primary bg-dark px-4 py-2 rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
+                            >
+                              پیگیری آنلاین در سامانه پست <ExternalLink size={14} />
+                            </a>
+                          </div>
+                        )}
+
+                        <div className="divide-y divide-gray-50 my-4 text-xs">
+                          {o.orderItems.map((it, i) => (
+                            <div key={i} className="py-2 flex justify-between text-gray-600">
+                              <span>{it.name} ({it.variant?.flavor} - {it.variant?.weight}) × {it.qty}</span>
+                              <span className="font-bold text-gray-900">{formatPrice(it.price * it.qty)} تومان</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center pt-3 border-t border-gray-100 text-sm">
+                          <span className="text-gray-500 font-bold">مبلغ کل پرداختی:</span>
+                          <span className="font-black text-gray-900 text-base">{formatPrice(o.totalPrice)} تومان</span>
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
+
+            {/* تب ۲: باشگاه مشتریان و کیف پول امتیازات */}
+            {activeTab === 'loyalty' && (
+              <div className="space-y-6">
+                <div className="bg-dark rounded-3xl p-8 text-white relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-6 border border-gray-800">
+                  <div>
+                    <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-xs font-black inline-block mb-2 border border-primary/30">
+                      باشگاه اختصاصی ورزشکاران Team 9
+                    </span>
+                    <h2 className="text-2xl font-black">کیف پول و امتیازات وفاداری</h2>
+                    <p className="text-xs text-gray-400 mt-2">به ازای هر خرید مکمل، اعتبار تخفیف دریافت کنید و برای خریدهای بعدی خرج کنید.</p>
+                  </div>
+                  <div className="bg-gray-800/90 border border-gray-700 p-6 rounded-2xl text-center shrink-0 min-w-[200px]">
+                    <span className="text-xs text-gray-400 block mb-1">موجودی امتیاز شما</span>
+                    <span className="text-3xl font-black text-primary block">{loyaltyPoints}</span>
+                    <span className="text-xs text-emerald-400 font-bold mt-1 block">معادل {formatPrice(walletCredit)} تومان اعتبار</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex items-center gap-3">
+                    <div className="p-3 bg-white text-primary rounded-xl shadow-sm"><Gift size={22}/></div>
+                    <div><span className="text-xs text-gray-400 block">امتیاز هدیه عضویت</span><span className="font-bold text-sm text-gray-800">۵۰ امتیاز رایگان</span></div>
+                  </div>
+                  <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex items-center gap-3">
+                    <div className="p-3 bg-white text-emerald-600 rounded-xl shadow-sm"><Award size={22}/></div>
+                    <div><span className="text-xs text-gray-400 block">سطح فعلی شما</span><span className="font-bold text-sm text-gray-800">{tier.name}</span></div>
+                  </div>
+                  <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex items-center gap-3">
+                    <div className="p-3 bg-white text-blue-600 rounded-xl shadow-sm"><Sparkles size={22}/></div>
+                    <div><span className="text-xs text-gray-400 block">ارزش تبدیل امتیاز</span><span className="font-bold text-sm text-gray-800">هر امتیاز = ۱,۰۰۰ تومان</span></div>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-amber-50/50 border border-amber-200 rounded-2xl flex justify-between items-center">
+                  <div>
+                    <h4 className="font-black text-amber-900 text-sm">تبدیل امتیاز به کوپن تخفیف</h4>
+                    <p className="text-xs text-amber-700 mt-1">امتیازات خود را به یک کد تخفیف یکبار مصرف برای خرید شیکر یا مکمل جدید تبدیل کنید.</p>
+                  </div>
+                  <button onClick={() => alert(`کد تخفیف اختصاصی شما با اعتبار ${formatPrice(walletCredit)} تومان فعال شد: CLUB-${loyaltyPoints}`)} className="bg-dark text-primary px-5 py-2.5 rounded-xl font-black text-xs hover:bg-gray-800 transition-colors">
+                    دریافت کد تخفیف
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 export default Profile;
