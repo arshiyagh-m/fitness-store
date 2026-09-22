@@ -30,3 +30,15 @@ export const createProductReview = asyncHandler(async (req, res) => {
     res.status(201).json({ message: 'نظر با موفقیت ثبت شد' });
   } else { res.status(404); throw new Error('محصول یافت نشد'); }
 });
+
+// تابع حذف محصول مخصوص ادمین
+export const deleteProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (product) {
+    await Product.deleteOne({ _id: product._id });
+    res.json({ message: 'محصول با موفقیت حذف شد' });
+  } else {
+    res.status(404);
+    throw new Error('محصول یافت نشد');
+  }
+});
