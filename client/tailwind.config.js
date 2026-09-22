@@ -10,18 +10,16 @@ export default {
         sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // تغییر رنگ اصلی به زرد/طلایی ورزشی
         primary: {
-          DEFAULT: '#FBBF24', // Amber 400 (زرد ورزشی)
-          hover: '#F59E0B',   // Amber 500
-          light: '#FEF3C7',   // Amber 100
-          dark: '#B45309'     // Amber 700
+          DEFAULT: '#FBBF24', // زرد/طلایی ورزشی
+          hover: '#F59E0B',
+          light: '#FEF3C7',
+          dark: '#B45309'
         },
         dark: {
-          DEFAULT: '#111827', // Gray 900
-          light: '#374151'    // Gray 700
+          DEFAULT: '#111827', // مشکی تیره
+          light: '#374151'
         },
-        // خاکستری‌ها برای پس‌زمینه و متن
         gray: {
           50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB',
           400: '#9CA3AF', 500: '#6B7280', 600: '#4B5563', 700: '#374151',
