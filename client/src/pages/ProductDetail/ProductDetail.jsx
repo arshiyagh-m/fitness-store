@@ -7,6 +7,7 @@ import useAuthStore from '../../store/authStore';
 import useCompareStore from '../../store/compareStore';
 import useWishlistStore from '../../store/wishlistStore';
 import ProductCard from '../../components/product/ProductCard';
+import ProductImage from '../../components/common/ProductImage';
 import { formatPrice } from '../../utils/formatters';
 import api from '../../services/api';
 
@@ -20,18 +21,15 @@ const ProductDetail = () => {
   
   const [currentVariant, setCurrentVariant] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [bottomTab, setBottomTab] = useState('reviews'); // reviews | qa
+  const [bottomTab, setBottomTab] = useState('reviews');
   
-  // زوم
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [isZooming, setIsZooming] = useState(false);
 
-  // ثبت نظر
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  // پرسش و پاسخ واقعی متصل به دیتابیس
   const [questionText, setQuestionText] = useState('');
   const [questionsList, setQuestionsList] = useState([]);
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
@@ -43,9 +41,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (product?._id) {
-      api.get(`/questions/product/${product._id}`)
-        .then(res => setQuestionsList(res.data))
-        .catch(() => {});
+      api.get(`/questions/product/${product._id}`).then(res => setQuestionsList(res.data)).catch(() => {});
     }
   }, [product]);
 
@@ -66,13 +62,10 @@ const ProductDetail = () => {
 
   const handleSendReview = async (e) => {
     e.preventDefault();
-    if (!user) return alert('برای ثبت نظر ابتدا وارد حساب کاربری شوید.');
+    if (!user) return alert('برای ثبت نظر ابتدا وارد شوید.');
     setIsSubmittingReview(true);
     try {
-      await api.post(`/products/${product._id}/reviews`, {
-        rating: reviewRating,
-        comment: reviewComment,
-      });
+      await api.post(`/products/${product._id}/reviews`, { rating: reviewRating, comment: reviewComment });
       alert('نظر شما با موفقیت ثبت شد!');
       setReviewComment('');
       fetchProductDetail(slug);
@@ -89,10 +82,7 @@ const ProductDetail = () => {
     if (!questionText.trim()) return;
     setIsSubmittingQuestion(true);
     try {
-      const { data } = await api.post('/questions', {
-        productId: product._id,
-        question: questionText,
-      });
+      const { data } = await api.post('/questions', { productId: product._id, question: questionText });
       alert('پرسش شما برای کارشناسان تغذیه Team 9 ارسال شد.');
       setQuestionsList([data, ...questionsList]);
       setQuestionText('');
@@ -106,8 +96,8 @@ const ProductDetail = () => {
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Activity className="animate-spin text-primary" size={48} /></div>;
   if (error || !product) return <div className="text-center py-20 font-bold"><AlertCircle size={48} className="mx-auto text-red-500 mb-4"/><Link to="/">بازگشت به فروشگاه</Link></div>;
 
-  const images = product.images && product.images.length > 0 ? product.images : ['https://images.unsplash.com/photo-1579758629938-03607ccdbaba?w=600'];
-  const activeImg = images[activeImageIndex] || images[0];
+  const images = product.images && product.images.length > 0 ? product.images : [];
+  const currentImgSrc = images[activeImageIndex] || null;
   const isFavorite = isInWishlist(product._id);
 
   const uniqueFlavors = [...new Set(product.variants?.map(v => v.flavor))].filter(Boolean);
@@ -131,7 +121,6 @@ const ProductDetail = () => {
           <Link to="/">تیم ۹</Link><ChevronRight size={14}/><span className="text-gray-800 font-bold">{product.title}</span>
         </nav>
 
-        {/* باکس اصلی محصول */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 mb-8 relative">
           <button 
             onClick={() => toggleWishlist(product)}
@@ -142,25 +131,30 @@ const ProductDetail = () => {
             <Heart size={20} className={isFavorite ? 'fill-rose-500' : ''} />
           </button>
 
-          {/* گالری و زوم */}
+          {/* گالری چندعکسی با زوم تعاملی و تصویر موقت اختصاصی */}
           <div className="lg:w-5/12 flex flex-col items-center">
             <div 
-              onMouseEnter={() => setIsZooming(true)}
+              onMouseEnter={() => currentImgSrc && setIsZooming(true)}
               onMouseLeave={() => setIsZooming(false)}
               onMouseMove={handleMouseMove}
               className="w-full aspect-square bg-white rounded-3xl overflow-hidden cursor-zoom-in border border-gray-100 shadow-inner flex items-center justify-center p-4 relative select-none"
             >
-              <img 
-                src={activeImg} 
-                alt={product.title}
-                style={{
-                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-                  transform: isZooming ? 'scale(2.4)' : 'scale(1)',
-                }}
-                className="w-full h-full object-contain transition-transform duration-100 ease-out pointer-events-none"
-              />
+              {currentImgSrc ? (
+                <img 
+                  src={currentImgSrc} 
+                  alt={product.title}
+                  style={{
+                    transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                    transform: isZooming ? 'scale(2.4)' : 'scale(1)',
+                  }}
+                  className="w-full h-full object-contain mix-blend-multiply transition-transform duration-100 ease-out pointer-events-none"
+                />
+              ) : (
+                <ProductImage category={product.category} alt={product.title} />
+              )}
             </div>
 
+            {/* گالری بندانگشتی چند تصویری */}
             {images.length > 1 && (
               <div className="flex gap-3 mt-4 overflow-x-auto w-full p-2 justify-center">
                 {images.map((img, i) => (
@@ -185,15 +179,15 @@ const ProductDetail = () => {
             </button>
           </div>
 
-          {/* اطلاعات محصول */}
+          {/* مشخصات و خرید */}
           <div className="lg:w-7/12 flex flex-col">
             <h1 className="text-2xl font-black text-gray-900 leading-snug mb-3 pr-10">{product.title}</h1>
             
             <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-6 pb-4 border-b border-gray-100">
-              <span className="font-bold text-dark bg-gray-100 px-3 py-1 rounded-lg uppercase">{product.brand}</span>
+              <span className="font-bold text-dark bg-gray-100 px-3 py-1 rounded-lg uppercase font-mono">{product.brand}</span>
               <span className="flex items-center gap-1"><Globe size={14}/> مبدا: <strong>{product.attributes?.country || 'آمریکا'}</strong></span>
               <div className="flex items-center gap-1 text-amber-500 font-bold bg-amber-50 px-2.5 py-1 rounded-xl">
-                <Star size={14} fill="currentColor" /> {product.rating ? product.rating.toFixed(1) : '۵.۰'} ({product.numReviews || 0} نظر تایید شده)
+                <Star size={14} fill="currentColor" /> {product.rating ? product.rating.toFixed(1) : '۵.۰'} ({product.numReviews || 0} نظر)
               </div>
             </div>
 
@@ -240,7 +234,6 @@ const ProductDetail = () => {
 
             <div className="text-sm text-gray-600 leading-relaxed text-justify mb-6">{product.description}</div>
 
-            {/* کارت قیمت و دکمه خرید در دسکتاپ */}
             <div className="mt-auto bg-gray-50 p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div>
                 <span className="text-xs text-gray-400 block mb-1">قیمت نهایی مصرف‌کننده:</span>
@@ -262,7 +255,7 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* تب‌های دوقلو: نظرات کاربران و پرسش و پاسخ مربیان */}
+        {/* تب‌های نظرات و پرسش‌ها */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
           <div className="flex border-b border-gray-100 bg-gray-50/70 p-2 gap-2">
             <button
@@ -391,7 +384,7 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* محصولات پیشنهادی دوره */}
+        {/* محصولات مرتبط */}
         {relatedProducts.length > 0 && (
           <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm mb-8">
             <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
@@ -405,7 +398,6 @@ const ProductDetail = () => {
 
       </div>
 
-      {/* 🚀 دکمه خرید چسبان در موبایل (Mobile Sticky Add to Cart) */}
       <div className="lg:hidden fixed bottom-14 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 p-3 z-40 shadow-lg flex items-center justify-between gap-4">
         <div>
           <span className="text-[10px] text-gray-400 block">قیمت:</span>
