@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Package, MapPin, CreditCard, Truck, CheckCircle, Save, Printer, ExternalLink, Loader2 } from 'lucide-react';
+import { ArrowRight, Package, MapPin, CreditCard, Truck, CheckCircle, Save, Printer, ExternalLink, Loader2, MessageSquare } from 'lucide-react';
 import { formatPrice } from '../../utils/formatters';
 import api from '../../services/api';
 
@@ -46,12 +46,11 @@ const AdminOrderDetails = () => {
     }
   };
 
-  // آدرس مستقیم رهگیری در پنل ادمین
   const getAdminTrackingLink = () => {
     if (!postalTrackingCode) return '#';
     if (courierCompany === 'تیپاکس') return `https://tipaxco.com/tracking?id=${postalTrackingCode}`;
     if (courierCompany === 'ماهکس') return `https://mahex.com/tracking/?tracking_number=${postalTrackingCode}`;
-    return `https://tracking.post.ir/?id=${postalTrackingCode}`; // پست پیشتاز
+    return `https://tracking.post.ir/?id=${postalTrackingCode}`;
   };
 
   if (loading) return <div className="text-center py-20 font-bold"><Loader2 className="animate-spin mx-auto text-primary" size={40}/></div>;
@@ -64,7 +63,7 @@ const AdminOrderDetails = () => {
           <Link to="/admin/orders" className="p-2 bg-gray-50 rounded-xl hover:bg-gray-100"><ArrowRight size={20}/></Link>
           <div>
             <h1 className="text-xl font-black text-gray-900 flex items-center gap-2">
-              <Package size={24} className="text-primary"/> مدیریت بارنامه مرسوله #{order._id.substring(18)}
+              <Package size={24} className="text-primary"/> مدیریت بارنامه مرسوله #{order.invoiceNumber || order._id.substring(18)}
             </h1>
             <p className="text-xs text-gray-400 mt-1">ثبت شده در {new Date(order.createdAt).toLocaleDateString('fa-IR')}</p>
           </div>
@@ -81,6 +80,7 @@ const AdminOrderDetails = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           
+          {/* اقلام فاکتور */}
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
             <h2 className="text-lg font-black text-gray-900 mb-4 pb-4 border-b border-gray-100">اقلام موجود در کارتن</h2>
             <div className="space-y-4">
@@ -99,24 +99,37 @@ const AdminOrderDetails = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            <h2 className="text-lg font-black text-gray-900 mb-4 pb-4 border-b border-gray-100 flex items-center gap-2">
-              <MapPin className="text-primary" size={20}/> مشخصات پستی تحویل‌گیرنده
+          {/* آدرس و یادداشت خریدار */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
+            <h2 className="text-lg font-black text-gray-900 pb-3 border-b border-gray-100 flex items-center gap-2">
+              <MapPin className="text-primary" size={20}/> مشخصات تحویل‌گیرنده
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-bold text-gray-800">
-              <div><span className="text-gray-400 block text-xs mb-1">نام گیرنده:</span> {order.shippingAddress.fullName}</div>
-              <div><span className="text-gray-400 block text-xs mb-1">تلفن تماس:</span> <span dir="ltr">{order.shippingAddress.phone}</span></div>
-              <div className="md:col-span-2"><span className="text-gray-400 block text-xs mb-1">نشانی:</span> {order.shippingAddress.city} - {order.shippingAddress.address}</div>
+              <div><span className="text-gray-400 block text-xs mb-1">نام تحویل‌گیرنده:</span> {order.shippingAddress.fullName}</div>
+              <div><span className="text-gray-400 block text-xs mb-1">تلفن همراه:</span> <span dir="ltr">{order.shippingAddress.phone}</span></div>
+              <div className="md:col-span-2"><span className="text-gray-400 block text-xs mb-1">نشانی کامل پستی:</span> {order.shippingAddress.city} - {order.shippingAddress.address}</div>
               <div><span className="text-gray-400 block text-xs mb-1">کد پستی:</span> <span className="font-mono text-primary text-base">{order.shippingAddress.postalCode}</span></div>
             </div>
+
+            {/* کادر توضیحات و هماهنگی خریدار */}
+            {order.shippingNotes && (
+              <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-1">
+                <span className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                  <MessageSquare size={14}/> توضیحات و هماهنگی ارسال خریدار:
+                </span>
+                <p className="text-xs text-gray-800 leading-relaxed font-bold">
+                  « {order.shippingNotes} »
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* سایدبار ثبت بارنامه اختصاصی */}
+        {/* سایدبار ثبت بارنامه */}
         <div className="space-y-8">
           <div className="bg-dark text-white p-6 rounded-3xl shadow-sm border border-gray-800">
             <h2 className="text-base font-black mb-6 pb-4 border-b border-gray-700 flex items-center gap-2">
-              <Truck className="text-primary" size={20}/> صدور بارنامه و رهگیری
+              <Truck className="text-primary" size={20}/> مدیریت ارسال و بارنامه
             </h2>
 
             <div className="space-y-4">
@@ -135,9 +148,8 @@ const AdminOrderDetails = () => {
                 </select>
               </div>
 
-              {/* ۳ شرکت مورد درخواست کارفرما */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-2">شرکت حمل‌ونقل منتخب</label>
+                <label className="block text-xs font-bold text-gray-400 mb-2">شرکت حمل‌ونقل</label>
                 <select 
                   value={courierCompany} 
                   onChange={(e) => setCourierCompany(e.target.value)}

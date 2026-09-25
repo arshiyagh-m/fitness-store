@@ -4,13 +4,12 @@ import Product from '../models/Product.js';
 import { sendAutomatedSMS } from '../utils/smsService.js';
 
 export const addOrderItems = asyncHandler(async (req, res) => {
-  const { orderItems, shippingAddress, paymentMethod, courierCompany, shippingPrice, totalPrice } = req.body;
+  const { orderItems, shippingAddress, shippingNotes, paymentMethod, courierCompany, shippingPrice, totalPrice } = req.body;
   
   if (orderItems && orderItems.length === 0) {
     res.status(400); throw new Error('سبد خرید خالی است');
   }
 
-  // تولید شماره فاکتور رسمی اختصاصی (مثال: INV-1403-84920)
   const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
   const order = new Order({ 
@@ -18,6 +17,7 @@ export const addOrderItems = asyncHandler(async (req, res) => {
     invoiceNumber,
     orderItems, 
     shippingAddress, 
+    shippingNotes: shippingNotes || '',
     paymentMethod,
     courierCompany: courierCompany || 'پست پیشتاز',
     shippingPrice: Number(shippingPrice) || 0,
@@ -26,10 +26,9 @@ export const addOrderItems = asyncHandler(async (req, res) => {
   
   const createdOrder = await order.save();
 
-  // ارسال پیامک ثبت سفارش با ذکر شماره فاکتور
   sendAutomatedSMS({
     phone: shippingAddress.phone,
-    message: `ورزشکار گرامی، سفارش شما با شماره فاکتور رسمی ${invoiceNumber} در Team 9 ثبت شد و به زودی تحویل ${order.courierCompany} می‌گردد.`
+    message: `ورزشکار گرامی، سفارش شما با شماره فاکتور ${invoiceNumber} در Team 9 ثبت شد و به زودی تحویل ${order.courierCompany} می‌گردد.`
   });
 
   for (const item of orderItems) {

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
-  invoiceNumber: { type: String, unique: true }, // شماره فاکتور رسمی شرکتی
+  invoiceNumber: { type: String, unique: true },
   orderItems: [
     {
       name: { type: String, required: true },
@@ -19,8 +19,9 @@ const OrderSchema = new mongoose.Schema({
     postalCode: { type: String, required: true },
     phone: { type: String, required: true },
   },
+  shippingNotes: { type: String, default: '' }, // توضیحات و هماهنگی ارسال مشتری
   paymentMethod: { type: String, required: true, default: 'درگاه بانکی شاپرک' },
-  shippingPrice: { type: Number, required: true, default: 0 }, // هزینه پستی
+  shippingPrice: { type: Number, required: true, default: 0 },
   totalPrice: { type: Number, required: true, default: 0 },
   isPaid: { type: Boolean, required: true, default: false },
   paidAt: { type: Date },

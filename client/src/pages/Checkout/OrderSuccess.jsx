@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle2, Package, Printer, Home, ShoppingBag, MapPin, Truck, Phone, ShieldCheck, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Package, Printer, Home, ShoppingBag, MapPin, Truck, Phone, ShieldCheck, AlertCircle, MessageSquare } from 'lucide-react';
 import api from '../../services/api';
 import { formatPrice } from '../../utils/formatters';
 
@@ -42,7 +42,6 @@ const OrderSuccess = () => {
             اطلاعات این فاکتور به صورت دائم در پایگاه داده مرکزی Team 9 ذخیره شد. در صورت بروز هرگونه مشکل یا پیگیری فوری، شماره فاکتور زیر را به پشتیبانی اعلام نمایید.
           </p>
 
-          {/* کادر هایلایت کد پیگیری اضطراری */}
           <div className="mt-6 p-4 bg-amber-50/70 border border-amber-200 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
               <ShieldCheck size={18} className="text-amber-600"/>
@@ -55,7 +54,7 @@ const OrderSuccess = () => {
           </div>
         </div>
 
-        {/* فاکتور چاپی رسمی (قابل پرینت استاندارد A4) */}
+        {/* فاکتور چاپی رسمی */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-6 print:border-none print:shadow-none">
           <div className="flex justify-between items-center pb-4 border-b border-gray-100">
             <div>
@@ -103,14 +102,25 @@ const OrderSuccess = () => {
             </table>
           </div>
 
-          {/* نشانی تحویل */}
-          <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs flex items-start gap-3">
-            <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
-            <div>
-              <strong className="block text-gray-800 mb-1">نشانی مقصد ارسال:</strong>
-              <span className="text-gray-600">{order.shippingAddress.city} - {order.shippingAddress.address} (کد پستی: {order.shippingAddress.postalCode})</span>
-              <span className="block text-gray-500 mt-1">تحویل‌گیرنده: {order.shippingAddress.fullName} | تلفن: {order.shippingAddress.phone}</span>
+          {/* نشانی تحویل و یادداشت مشتری */}
+          <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs space-y-2">
+            <div className="flex items-start gap-2">
+              <MapPin size={16} className="text-primary shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-gray-800 mb-0.5">نشانی مقصد ارسال:</strong>
+                <span className="text-gray-600">{order.shippingAddress.city} - {order.shippingAddress.address} (کد پستی: {order.shippingAddress.postalCode})</span>
+                <span className="block text-gray-500 mt-0.5">تحویل‌گیرنده: {order.shippingAddress.fullName} | تلفن: {order.shippingAddress.phone}</span>
+              </div>
             </div>
+            {order.shippingNotes && (
+              <div className="pt-2 border-t border-gray-200 text-gray-700 flex items-start gap-2">
+                <MessageSquare size={16} className="text-primary shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block text-dark mb-0.5">یادداشت هماهنگی خریدار:</strong>
+                  <span>« {order.shippingNotes} »</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-between items-center pt-4 border-t border-gray-200 text-sm">

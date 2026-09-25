@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { MapPin, Phone, User, CheckCircle2, Loader2, ArrowRight, Truck, Zap, PackageCheck } from 'lucide-react';
+import { MapPin, Phone, User, CheckCircle2, Loader2, ArrowRight, Truck, Zap, PackageCheck, MessageSquare } from 'lucide-react';
 import useCartStore from '../../store/cartStore';
 import useAuthStore from '../../store/authStore';
 import { formatPrice } from '../../utils/formatters';
@@ -15,7 +15,6 @@ const Checkout = () => {
   const [error, setError] = useState(null);
   const [selectedCourier, setSelectedCourier] = useState('پست پیشتاز');
 
-  // خواندن نرخ‌های واقعی از دیتابیس تنظیمات
   const [shippingRates, setShippingRates] = useState({
     post: 55000,
     tipax: 85000,
@@ -27,14 +26,14 @@ const Checkout = () => {
     phone: user?.phone || '',
     city: '',
     postalCode: '',
-    address: ''
+    address: '',
+    shippingNotes: '' // فیلد جدید توضیحات
   });
 
   useEffect(() => {
     if (!user) navigate('/login');
     else if (cartItems.length === 0) navigate('/cart');
 
-    // دریافت تعرفه‌های به‌روز پستی از دیتابیس
     const loadSettings = async () => {
       try {
         const { data } = await api.get('/settings');
@@ -54,7 +53,6 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // دقیقاً ۳ شرکت حمل‌ونقل رسمی (پیک موتوری و ارسال رایگان کلاً حذف شد)
   const courierOptions = [
     { id: 'پست پیشتاز', title: 'شرکت ملی پست (پیشتاز)', time: 'تحویل سراسری ۳ الی ۵ روز کاری', price: shippingRates.post, icon: <Truck size={20} className="text-emerald-600"/> },
     { id: 'تیپاکس', title: 'تیپاکس اکسپرس (سریع)', time: 'تحویل ۲۴ الی ۴۸ ساعته درب منزل', price: shippingRates.tipax, icon: <Zap size={20} className="text-amber-500"/> },
@@ -64,7 +62,7 @@ const Checkout = () => {
   const subTotal = cartFinalPrice();
   const currentCourier = courierOptions.find(c => c.id === selectedCourier) || courierOptions[0];
   const shippingFee = currentCourier.price;
-  const totalPayable = subTotal + shippingFee; // همیشه هزینه ارسال اضافه می‌شود
+  const totalPayable = subTotal + shippingFee;
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -80,7 +78,14 @@ const Checkout = () => {
           variant: item.variant,
           product: item.product._id
         })),
-        shippingAddress: formData,
+        shippingAddress: {
+          fullName: formData.fullName,
+          phone: formData.phone,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          address: formData.address
+        },
+        shippingNotes: formData.shippingNotes, // ارسال یادداشت به دیتابیس
         paymentMethod: 'درگاه بانکی شاپرک',
         courierCompany: selectedCourier,
         shippingPrice: shippingFee,
@@ -112,7 +117,7 @@ const Checkout = () => {
           
           <div className="lg:w-2/3 space-y-6">
             
-            {/* مشخصات آدرس */}
+            {/* مشخصات آدرس و توضیحات */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
               <h2 className="text-base font-black text-gray-900 mb-6 pb-3 border-b border-gray-100 flex items-center gap-2">
                 <MapPin size={20} className="text-primary"/> آدرس و مشخصات تحویل‌گیرنده
@@ -136,12 +141,27 @@ const Checkout = () => {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs font-bold text-gray-600 mb-1">نشانی دقیق پستی</label>
-                  <textarea required name="address" rows="3" value={formData.address} onChange={handleChange} placeholder="خیابان، کوچه، پلاک، زنگ یا واحد..." className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-primary text-xs resize-none"></textarea>
+                  <textarea required name="address" rows="2" value={formData.address} onChange={handleChange} placeholder="خیابان، کوچه، پلاک، زنگ یا واحد..." className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-primary text-xs resize-none"></textarea>
+                </div>
+
+                {/* فیلد جدید: توضیحات و هماهنگی ارسال */}
+                <div className="md:col-span-2 pt-2 border-t border-gray-100">
+                  <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
+                    <MessageSquare size={14} className="text-primary"/> توضیحات و هماهنگی ارسال مرسوله (اختیاری)
+                  </label>
+                  <textarea 
+                    name="shippingNotes" 
+                    rows="2" 
+                    value={formData.shippingNotes} 
+                    onChange={handleChange} 
+                    placeholder="مثال: لطفاً قبل از تحویل تماس بگیرید، یا تحویل به نگهبانی مجتمع، یا تحویل بعد از ساعت ۴ عصر..." 
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-primary text-xs resize-none placeholder-gray-400"
+                  ></textarea>
                 </div>
               </div>
             </div>
 
-            {/* ماژول اختصاصی انتخاب ۳ حامل پستی رسمی */}
+            {/* انتخاب ۳ حامل پستی */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
               <h2 className="text-base font-black text-gray-900 mb-2 flex items-center gap-2">
                 <Truck size={20} className="text-primary"/> انتخاب شیوه حمل‌ونقل بار
