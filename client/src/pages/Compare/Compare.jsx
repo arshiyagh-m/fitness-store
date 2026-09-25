@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Scale, ArrowRight, Trash2, Flame, Award, DollarSign } from 'lucide-react';
+import { Scale, ArrowRight, Trash2, Flame, DollarSign, Award, CheckCircle2 } from 'lucide-react';
 import useCompareStore from '../../store/compareStore';
 import { formatPrice } from '../../utils/formatters';
 
@@ -9,17 +9,17 @@ const Compare = () => {
 
   if (compareItems.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50 text-center px-4">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50 text-center px-4 font-sans">
         <Scale size={80} className="text-gray-300 mb-4" />
         <h1 className="text-2xl font-black text-gray-800 mb-2">لیست مقایسه خالی است!</h1>
-        <p className="text-gray-500 mb-6 text-sm">حداقل دو مکمل را انتخاب کنید تا جدول موشکافانه مقایسه پروتئین، اسکوپ و قیمت فعال شود.</p>
+        <p className="text-gray-500 mb-6 text-sm">حداقل دو مکمل را انتخاب کنید تا جدول مقایسه ارزش خرید و ترکیبات فعال شود.</p>
         <Link to="/archive" className="bg-dark text-primary font-bold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors text-sm">مشاهده کاتالوگ مکمل‌ها</Link>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 font-sans">
+    <div className="bg-gray-50 min-h-screen py-8 font-sans" dir="rtl">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
@@ -50,50 +50,20 @@ const Compare = () => {
                 ))}
               </tr>
 
-              {/* قیمت کل و قیمت هر اسکوپ (شاهکار مقایسه) */}
-              <tr className="border-b border-gray-100 bg-amber-50/30">
-                <td className="p-5 font-black text-dark flex items-center gap-1.5"><DollarSign size={16} className="text-primary"/> ارزش خرید (قیمت هر سروینگ)</td>
+              {/* 🎯 ارزش خرید و محاسبه قطعی قیمت هر اسکوپ */}
+              <tr className="border-b border-gray-100 bg-amber-50/40">
+                <td className="p-5 font-black text-dark flex items-center gap-1.5"><DollarSign size={16} className="text-primary"/> ارزش خرید (قیمت هر ۱ اسکوپ)</td>
                 {compareItems.map(item => {
                   const price = item.variants?.[0]?.discountPrice || item.variants?.[0]?.price || 0;
-                  const servings = item.attributes?.servingsPerContainer || 60;
+                  const servings = Number(item.attributes?.servingsPerContainer) || 1;
                   const costPerServing = Math.round(price / servings);
                   return (
                     <td key={item._id} className="p-5 text-center">
-                      <div className="text-xl font-black text-primary">{formatPrice(costPerServing)} <span className="text-xs font-normal">تومان</span></div>
-                      <span className="text-[11px] text-gray-400">به ازای هر ۱ پیمانه مصرفی</span>
+                      <div className="text-2xl font-black text-primary font-mono">{formatPrice(costPerServing)} <span className="text-xs font-normal font-sans">تومان</span></div>
+                      <span className="text-[10px] text-gray-400 block mt-0.5">قیمت قوطی ({formatPrice(price)}) ÷ {servings} سروینگ</span>
                     </td>
                   );
                 })}
-              </tr>
-
-              {/* پروتئین خالص */}
-              <tr className="border-b border-gray-100">
-                <td className="p-5 bg-gray-50/70 font-bold text-gray-700 flex items-center gap-1"><Award size={16} className="text-emerald-600"/> پروتئین در هر اسکوپ</td>
-                {compareItems.map(item => (
-                  <td key={item._id} className="p-5 text-center font-black text-lg text-emerald-600">
-                    {item.nutritionFacts?.protein || '۲۴'} گرم
-                  </td>
-                ))}
-              </tr>
-
-              {/* BCAA */}
-              <tr className="border-b border-gray-100">
-                <td className="p-5 bg-gray-50/70 font-bold text-gray-700">میزان BCAA</td>
-                {compareItems.map(item => (
-                  <td key={item._id} className="p-5 text-center font-black text-blue-600">
-                    {item.nutritionFacts?.bcaa || '۵.۵'} گرم
-                  </td>
-                ))}
-              </tr>
-
-              {/* کالری و کربوهیدرات */}
-              <tr className="border-b border-gray-100">
-                <td className="p-5 bg-gray-50/70 font-bold text-gray-700">کالری و کربوهیدرات</td>
-                {compareItems.map(item => (
-                  <td key={item._id} className="p-5 text-center text-xs font-bold text-gray-600">
-                    {item.nutritionFacts?.calories || '120'} کالری | {item.nutritionFacts?.carbs || '3'}g کربو
-                  </td>
-                ))}
               </tr>
 
               {/* کشور سازنده */}
@@ -106,12 +76,53 @@ const Compare = () => {
                 ))}
               </tr>
 
+              {/* هدف از مصرف */}
+              <tr className="border-b border-gray-100">
+                <td className="p-5 bg-gray-50/70 font-bold text-gray-700">هدف اصلی مصرف</td>
+                {compareItems.map(item => (
+                  <td key={item._id} className="p-5 text-center font-bold text-primary">
+                    {item.attributes?.targetGoal || 'عضله‌سازی'}
+                  </td>
+                ))}
+              </tr>
+
               {/* تعداد کل سروینگ */}
               <tr className="border-b border-gray-100">
-                <td className="p-5 bg-gray-50/70 font-bold text-gray-700">تعداد کل سروینگ قوطی</td>
+                <td className="p-5 bg-gray-50/70 font-bold text-gray-700">تعداد کل سروینگ در بسته</td>
                 {compareItems.map(item => (
-                  <td key={item._id} className="p-5 text-center font-bold text-gray-800">
-                    {item.attributes?.servingsPerContainer || 74} پیمانه
+                  <td key={item._id} className="p-5 text-center font-black text-gray-900">
+                    {item.attributes?.servingsPerContainer || 60} پیمانه
+                  </td>
+                ))}
+              </tr>
+
+              {/* اندازه پیمانه */}
+              <tr className="border-b border-gray-100">
+                <td className="p-5 bg-gray-50/70 font-bold text-gray-700">اندازه هر سروینگ</td>
+                {compareItems.map(item => (
+                  <td key={item._id} className="p-5 text-center text-xs font-bold text-gray-600">
+                    {item.attributes?.servingSize || '30 گرم'}
+                  </td>
+                ))}
+              </tr>
+
+              {/* مقایسه هوشمند ترکیبات ارزش غذایی که ثبت شده است */}
+              <tr className="border-b border-gray-100 bg-gray-50/40">
+                <td className="p-5 font-black text-gray-800 flex items-center gap-1.5"><Flame size={16} className="text-primary"/> ترکیبات فعال ثبت‌شده</td>
+                {compareItems.map(item => (
+                  <td key={item._id} className="p-5 text-center align-top">
+                    {(!item.nutritionFacts || item.nutritionFacts.length === 0) ? (
+                      <span className="text-xs text-gray-400">ثبت نشده</span>
+                    ) : (
+                      <div className="space-y-1.5 text-xs text-right max-w-[200px] mx-auto">
+                        {item.nutritionFacts.map((n, i) => (
+                          <div key={i} className="flex justify-between py-1 border-b border-gray-100">
+                            <span className="text-gray-600">{n.ingredient}:</span>
+                            <strong className="text-emerald-600 font-black font-mono">{n.amount}</strong>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </td>
                 ))}
               </tr>
@@ -122,7 +133,7 @@ const Compare = () => {
                 {compareItems.map(item => (
                   <td key={item._id} className="p-6 text-center">
                     <Link to={`/product/${item.slug}`} className="bg-primary text-dark hover:bg-primary-hover font-black px-6 py-3 rounded-2xl text-xs inline-block shadow-md">
-                      خرید این مکمل
+                      مشاهده و خرید
                     </Link>
                   </td>
                 ))}

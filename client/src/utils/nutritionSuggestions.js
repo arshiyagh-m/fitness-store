@@ -1,0 +1,23 @@
+export const POPULAR_INGREDIENTS = [
+  { name: 'پروتئین خالص (Protein)', defaultUnit: 'گرم' },
+  { name: 'کراتین مونوهیدرات (Creatine)', defaultUnit: 'گرم' },
+  { name: 'بی‌سی‌اا (BCAA)', defaultUnit: 'گرم' },
+  { name: 'گلوتامین (Glutamine)', defaultUnit: 'گرم' },
+  { name: 'کافئین (Caffeine)', defaultUnit: 'میلی‌گرم' },
+  { name: 'بتاآلانین (Beta-Alanine)', defaultUnit: 'میلی‌گرم' },
+  { name: 'سیترولین مالات (Citrulline)', defaultUnit: 'میلی‌گرم' },
+  { name: 'انرژی / کالری (Calories)', defaultUnit: 'کیلوکالری' },
+  { name: 'کربوهیدرات (Carbs)', defaultUnit: 'گرم' },
+  { name: 'شکر (Sugar)', defaultUnit: 'گرم' },
+  { name: 'چربی کل (Total Fat)', defaultUnit: 'گرم' },
+  { name: 'ال‌کارنیتین (L-Carnitine)', defaultUnit: 'میلی‌گرم' },
+  { name: 'سی‌ال‌ای (CLA)', defaultUnit: 'میلی‌گرم' },
+  { name: 'زینک (Zinc)', defaultUnit: 'میلی‌گرم' },
+  { name: 'منیزیم (Magnesium)', defaultUnit: 'میلی‌گرم' },
+  { name: 'کلسیم (Calcium)', defaultUnit: 'میلی‌گرم' },
+  { name: 'ویتامین C', defaultUnit: 'میلی‌گرم' },
+  { name: 'ویتامین D3', defaultUnit: 'واحد بین‌المللی IU' },
+  { name: 'امگا ۳ (EPA / DHA)', defaultUnit: 'میلی‌گرم' },
+  { name: 'کلاژن پپتاید (Collagen)', defaultUnit: 'گرم' },
+  { name: 'ملاتونین (Melatonin)', defaultUnit: 'میلی‌گرم' }
+];

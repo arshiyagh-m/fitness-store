@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShieldCheck, Dumbbell, ChevronRight, CheckCircle2, AlertCircle, ShoppingCart, Activity, Star, MessageSquare, Send, Scale, Globe, Heart, HelpCircle, UserCheck } from 'lucide-react';
+import { ShieldCheck, Dumbbell, ChevronRight, CheckCircle2, AlertCircle, ShoppingCart, Activity, Star, MessageSquare, Send, Scale, Globe, Heart, HelpCircle, UserCheck, Flame, Award, DollarSign, Calendar, Layers } from 'lucide-react';
 import useProductStore from '../../store/productStore';
 import useCartStore from '../../store/cartStore';
 import useAuthStore from '../../store/authStore';
@@ -21,7 +21,7 @@ const ProductDetail = () => {
   
   const [currentVariant, setCurrentVariant] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [bottomTab, setBottomTab] = useState('reviews');
+  const [bottomTab, setBottomTab] = useState('nutrition'); // nutrition | reviews | qa
   
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [isZooming, setIsZooming] = useState(false);
@@ -112,6 +112,11 @@ const ProductDetail = () => {
 
   const activePrice = currentVariant?.discountPrice || currentVariant?.price || 0;
   const isOutOfStock = !currentVariant || currentVariant.stock === 0;
+
+  // 🎯 محاسبه خودکار و دقیق ریاضی قیمت هر اسکوپ (سروینگ)
+  const totalServings = Number(product.attributes?.servingsPerContainer) || 1;
+  const costPerServing = Math.round(activePrice / totalServings);
+
   const relatedProducts = products.filter(p => p.category === product.category && p._id !== product._id).slice(0, 4);
 
   return (
@@ -121,6 +126,7 @@ const ProductDetail = () => {
           <Link to="/">تیم ۹</Link><ChevronRight size={14}/><span className="text-gray-800 font-bold">{product.title}</span>
         </nav>
 
+        {/* جعبه اصلی کالا */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 mb-8 relative">
           <button 
             onClick={() => toggleWishlist(product)}
@@ -131,7 +137,7 @@ const ProductDetail = () => {
             <Heart size={20} className={isFavorite ? 'fill-rose-500' : ''} />
           </button>
 
-          {/* گالری چندعکسی با زوم تعاملی و تصویر موقت اختصاصی */}
+          {/* گالری چندعکسی با زوم تعاملی */}
           <div className="lg:w-5/12 flex flex-col items-center">
             <div 
               onMouseEnter={() => currentImgSrc && setIsZooming(true)}
@@ -154,7 +160,6 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* گالری بندانگشتی چند تصویری */}
             {images.length > 1 && (
               <div className="flex gap-3 mt-4 overflow-x-auto w-full p-2 justify-center">
                 {images.map((img, i) => (
@@ -175,33 +180,42 @@ const ProductDetail = () => {
               onClick={() => addToCompare(product)}
               className="mt-6 w-full py-3.5 bg-gray-50 hover:bg-gray-100 text-gray-800 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-sm border border-gray-200 shadow-sm"
             >
-              <Scale size={18} className="text-primary" /> مقایسه تخصصی این مکمل
+              <Scale size={18} className="text-primary" /> مقایسه تخصصی این مکمل با سایر محصولات
             </button>
           </div>
 
-          {/* مشخصات و خرید */}
+          {/* شناسنامه کامل مکمل */}
           <div className="lg:w-7/12 flex flex-col">
             <h1 className="text-2xl font-black text-gray-900 leading-snug mb-3 pr-10">{product.title}</h1>
             
             <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-6 pb-4 border-b border-gray-100">
-              <span className="font-bold text-dark bg-gray-100 px-3 py-1 rounded-lg uppercase font-mono">{product.brand}</span>
-              <span className="flex items-center gap-1"><Globe size={14}/> مبدا: <strong>{product.attributes?.country || 'آمریکا'}</strong></span>
+              <span className="font-black text-dark bg-gray-100 px-3 py-1 rounded-lg uppercase font-mono">{product.brand}</span>
+              <span className="flex items-center gap-1"><Globe size={14} className="text-blue-500"/> کشور: <strong>{product.attributes?.country || 'آمریکا'}</strong></span>
+              <span className="flex items-center gap-1"><Dumbbell size={14} className="text-primary"/> هدف: <strong>{product.attributes?.targetGoal || 'عضله‌سازی'}</strong></span>
               <div className="flex items-center gap-1 text-amber-500 font-bold bg-amber-50 px-2.5 py-1 rounded-xl">
                 <Star size={14} fill="currentColor" /> {product.rating ? product.rating.toFixed(1) : '۵.۰'} ({product.numReviews || 0} نظر)
               </div>
             </div>
 
+            {/* کارت مشخصات فیزیکی و پیمانه */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-200 mb-6 text-xs">
+              <div><span className="text-gray-400 block mb-0.5">فرم مکمل:</span><strong className="text-gray-800">{product.attributes?.form || 'پودر'}</strong></div>
+              <div><span className="text-gray-400 block mb-0.5">حجم هر پیمانه:</span><strong className="text-gray-800">{product.attributes?.servingSize || '30 گرم'}</strong></div>
+              <div><span className="text-gray-400 block mb-0.5">تعداد کل سروینگ:</span><strong className="text-primary font-black text-sm">{totalServings} اسکوپ</strong></div>
+            </div>
+
+            {/* طعم و وزن */}
             {currentVariant && (
-              <div className="space-y-6 mb-6">
+              <div className="space-y-4 mb-6">
                 {uniqueFlavors.length > 0 && (
                   <div>
-                    <span className="text-sm font-bold text-gray-800 block mb-2">طعم: <span className="text-primary font-black">{currentVariant.flavor}</span></span>
+                    <span className="text-xs font-bold text-gray-600 block mb-2">طعم: <strong className="text-dark font-black text-sm">{currentVariant.flavor}</strong></span>
                     <div className="flex flex-wrap gap-2">
                       {uniqueFlavors.map(flavor => (
                         <button 
                           key={flavor} 
                           onClick={() => handleVariantChange('flavor', flavor)} 
-                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                             currentVariant.flavor === flavor ? 'border-primary bg-primary text-dark shadow-md' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                         >
@@ -213,13 +227,13 @@ const ProductDetail = () => {
                 )}
                 {uniqueWeights.length > 0 && (
                   <div>
-                    <span className="text-sm font-bold text-gray-800 block mb-2">وزن: <span className="text-dark font-black">{currentVariant.weight}</span></span>
+                    <span className="text-xs font-bold text-gray-600 block mb-2">وزن: <strong className="text-dark font-black text-sm">{currentVariant.weight}</strong></span>
                     <div className="flex flex-wrap gap-2">
                       {uniqueWeights.map(weight => (
                         <button 
                           key={weight} 
                           onClick={() => handleVariantChange('weight', weight)} 
-                          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                             currentVariant.weight === weight ? 'border-dark bg-dark text-primary shadow-md' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                         >
@@ -232,14 +246,25 @@ const ProductDetail = () => {
               </div>
             )}
 
-            <div className="text-sm text-gray-600 leading-relaxed text-justify mb-6">{product.description}</div>
+            {/* نشان‌های اصالت این بچ خاص */}
+            {currentVariant && (
+              <div className="flex flex-wrap items-center gap-4 py-3 border-t border-gray-100 text-[11px] text-gray-500 mb-6">
+                <span className="font-mono">کد SKU: <strong>{currentVariant.sku}</strong></span>
+                {currentVariant.sibSalamat && <span className="flex items-center gap-1 text-emerald-600 font-bold"><ShieldCheck size={14}/> سیب سلامت: {currentVariant.sibSalamat}</span>}
+                {currentVariant.expiryDate && <span className="flex items-center gap-1 font-mono"><Calendar size={14}/> انقضا: {currentVariant.expiryDate}</span>}
+              </div>
+            )}
 
+            {/* باکس قیمت کل + محاسبه خودکار قیمت هر اسکوپ */}
             <div className="mt-auto bg-gray-50 p-6 rounded-3xl border border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div>
-                <span className="text-xs text-gray-400 block mb-1">قیمت نهایی مصرف‌کننده:</span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-black text-gray-900">{formatPrice(activePrice)}</span>
                   <span className="text-sm font-bold text-gray-500">تومان</span>
+                </div>
+                {/* 🎯 ارزش خرید و قیمت هر اسکوپ */}
+                <div className="text-[11px] font-bold text-emerald-600 mt-1 flex items-center gap-1">
+                  <DollarSign size={13}/> قیمت هر ۱ اسکوپ مصرفی: {formatPrice(costPerServing)} تومان
                 </div>
               </div>
               <button 
@@ -255,71 +280,128 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* تب‌های نظرات و پرسش‌ها */}
+        {/* بخش جامع تب‌ها: جدول ارزش غذایی پویا | دستور مصرف | نظرات | پرسش و پاسخ */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-          <div className="flex border-b border-gray-100 bg-gray-50/70 p-2 gap-2">
+          <div className="flex border-b border-gray-100 bg-gray-50/70 p-2 gap-2 overflow-x-auto">
+            <button
+              onClick={() => setBottomTab('nutrition')}
+              className={`flex-1 min-w-[150px] py-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+                bottomTab === 'nutrition' ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-dark'
+              }`}
+            >
+              <Flame size={16} className={bottomTab === 'nutrition' ? 'text-primary' : ''}/>
+              جدول ارزش غذایی (Nutrition Facts)
+            </button>
+            <button
+              onClick={() => setBottomTab('guide')}
+              className={`flex-1 min-w-[150px] py-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+                bottomTab === 'guide' ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-dark'
+              }`}
+            >
+              <Dumbbell size={16} className={bottomTab === 'guide' ? 'text-primary' : ''}/>
+              طریقه و دستور مصرف
+            </button>
             <button
               onClick={() => setBottomTab('reviews')}
-              className={`flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
+              className={`flex-1 min-w-[150px] py-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
                 bottomTab === 'reviews' ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-dark'
               }`}
             >
-              <MessageSquare size={18} className={bottomTab === 'reviews' ? 'text-primary' : ''}/>
-              نظرات و نقد خریداران ({product.reviews?.length || 0})
+              <MessageSquare size={16} className={bottomTab === 'reviews' ? 'text-primary' : ''}/>
+              نظرات خریداران ({product.reviews?.length || 0})
             </button>
             <button
               onClick={() => setBottomTab('qa')}
-              className={`flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
+              className={`flex-1 min-w-[150px] py-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
                 bottomTab === 'qa' ? 'bg-white text-dark shadow-sm' : 'text-gray-500 hover:text-dark'
               }`}
             >
-              <HelpCircle size={18} className={bottomTab === 'qa' ? 'text-primary' : ''}/>
-              مشاوره و پرسش از مربیان ({questionsList.length})
+              <HelpCircle size={16} className={bottomTab === 'qa' ? 'text-primary' : ''}/>
+              مشاوره مربیان ({questionsList.length})
             </button>
           </div>
 
           <div className="p-8">
+            
+            {/* تب ۱: جدول رسمی Nutrition Facts */}
+            {bottomTab === 'nutrition' && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-black text-gray-900 text-sm mb-1">جدول رسمی ترکیبات و ارزش غذایی</h3>
+                  <p className="text-xs text-gray-400">اندازه هر سروینگ: {product.attributes?.servingSize || '30 گرم'} | تعداد کل سروینگ در قوطی: {totalServings} اسکوپ</p>
+                </div>
+
+                {(!product.nutritionFacts || product.nutritionFacts.length === 0) ? (
+                  <p className="text-xs text-gray-400">جدول ترکیبات برای این محصول ثبت نشده است.</p>
+                ) : (
+                  <div className="border border-gray-200 rounded-2xl overflow-hidden max-w-2xl">
+                    <table className="w-full text-xs text-right border-collapse">
+                      <thead className="bg-gray-100 text-gray-700 font-black border-b border-gray-200">
+                        <tr>
+                          <th className="p-3.5">ماده مغذی / ترکیب فعال</th>
+                          <th className="p-3.5 text-center">مقدار در هر اسکوپ</th>
+                          <th className="p-3.5 text-center">درصد نیاز روزانه (%DV)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {product.nutritionFacts.map((row, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50/60">
+                            <td className="p-3.5 font-bold text-gray-800">{row.ingredient}</td>
+                            <td className="p-3.5 text-center font-black text-primary font-mono text-sm">{row.amount}</td>
+                            <td className="p-3.5 text-center text-gray-400 font-mono">{row.dailyValue || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* تب ۲: راهنما و دستور مصرف */}
+            {bottomTab === 'guide' && (
+              <div className="space-y-4 max-w-3xl leading-relaxed text-sm text-gray-700">
+                <h3 className="font-black text-gray-900 text-base">بهترین طریقه و زمان مصرف</h3>
+                <p className="p-5 bg-amber-50/60 border border-amber-200 rounded-2xl text-xs font-bold text-amber-900">
+                  {product.attributes?.usageGuide || 'یک اسکوپ را در ۲۵۰ میلی‌لیتر آب یا شیر کم‌چرب حل کرده و میل نمایید.'}
+                </p>
+                <div className="pt-4 space-y-2">
+                  <h4 className="font-bold text-gray-800 text-xs">نقد و بررسی کامل مکمل:</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed text-justify">{product.description}</p>
+                </div>
+              </div>
+            )}
+
+            {/* تب ۳: نظرات خریداران */}
             {bottomTab === 'reviews' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1">
                   <form onSubmit={handleSendReview} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
                     <h3 className="font-bold text-gray-900 text-sm">ثبت تجربه مصرف مکمل</h3>
-                    <div>
-                      <span className="block text-xs font-bold text-gray-500 mb-2">امتیاز کیفی شما:</span>
-                      <div className="flex gap-2">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <button type="button" key={s} onClick={() => setReviewRating(s)}>
-                            <Star size={22} className={s <= reviewRating ? "text-amber-400 fill-amber-400" : "text-gray-300"} />
-                          </button>
-                        ))}
-                      </div>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <button type="button" key={s} onClick={() => setReviewRating(s)}>
+                          <Star size={22} className={s <= reviewRating ? "text-amber-400 fill-amber-400" : "text-gray-300"} />
+                        </button>
+                      ))}
                     </div>
-                    <textarea 
-                      required 
-                      rows="4" 
-                      value={reviewComment} 
-                      onChange={(e) => setReviewComment(e.target.value)} 
-                      placeholder="طعم، میزان حل‌شوندگی و نتایج مصرف..." 
-                      className="w-full p-4 bg-white border border-gray-200 rounded-xl text-xs outline-none focus:border-primary resize-none"
-                    ></textarea>
+                    <textarea required rows="4" value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} placeholder="کیفیت، طعم و نحوه مصرف..." className="w-full p-4 bg-white border rounded-xl text-xs outline-none focus:border-primary resize-none"></textarea>
                     <button type="submit" disabled={isSubmittingReview} className="w-full bg-dark text-primary font-black py-3 rounded-xl hover:bg-gray-800 text-xs flex items-center justify-center gap-2">
-                      <Send size={14}/> {isSubmittingReview ? 'در حال ثبت...' : 'ثبت قطعی نظر'}
+                      <Send size={14}/> {isSubmittingReview ? 'در حال ثبت...' : 'ثبت نظر'}
                     </button>
                   </form>
                 </div>
 
                 <div className="lg:col-span-2 space-y-4">
                   {(!product.reviews || product.reviews.length === 0) ? (
-                    <div className="text-center py-12 text-gray-400 font-bold">هنوز نظری برای این مکمل ثبت نشده است.</div>
+                    <div className="text-center py-12 text-gray-400 font-bold">هنوز نظری ثبت نشده است.</div>
                   ) : (
                     product.reviews.map((rev) => (
                       <div key={rev._id} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 space-y-2">
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-gray-900 text-sm">{rev.name}</span>
                           <div className="flex gap-1">
-                            {[...Array(5)].map((_, idx) => (
-                              <Star key={idx} size={14} className={idx < rev.rating ? "text-amber-400 fill-amber-400" : "text-gray-200 fill-gray-200"} />
-                            ))}
+                            {[...Array(5)].map((_, idx) => <Star key={idx} size={14} className={idx < rev.rating ? "text-amber-400 fill-amber-400" : "text-gray-200 fill-gray-200"} />)}
                           </div>
                         </div>
                         <p className="text-xs text-gray-600 leading-relaxed pt-2">{rev.comment}</p>
@@ -330,19 +412,13 @@ const ProductDetail = () => {
               </div>
             )}
 
+            {/* تب ۴: پرسش و پاسخ مربیان */}
             {bottomTab === 'qa' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1">
                   <form onSubmit={handleSendQuestion} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
                     <h3 className="font-bold text-gray-900 text-sm">پرسش تخصصی از مربی</h3>
-                    <textarea 
-                      required 
-                      rows="4" 
-                      value={questionText} 
-                      onChange={(e) => setQuestionText(e.target.value)} 
-                      placeholder="سوال درباره دوز مصرفی، تداخل یا دوره مکمل..." 
-                      className="w-full p-4 bg-white border border-gray-200 rounded-xl text-xs outline-none focus:border-primary resize-none"
-                    ></textarea>
+                    <textarea required rows="4" value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="سوال درباره دوز مصرفی، تداخل یا دوره مکمل..." className="w-full p-4 bg-white border rounded-xl text-xs outline-none focus:border-primary resize-none"></textarea>
                     <button type="submit" disabled={isSubmittingQuestion} className="w-full bg-dark text-primary font-black py-3 rounded-xl hover:bg-gray-800 text-xs flex items-center justify-center gap-2">
                       <Send size={14}/> {isSubmittingQuestion ? 'در حال ارسال...' : 'ارسال به مربیان Team 9'}
                     </button>
@@ -351,28 +427,19 @@ const ProductDetail = () => {
 
                 <div className="lg:col-span-2 space-y-4">
                   {questionsList.length === 0 ? (
-                    <div className="text-center py-12 text-gray-400 font-bold">هنوز پرسشی برای این مکمل ثبت نشده است.</div>
+                    <div className="text-center py-12 text-gray-400 font-bold">هنوز پرسشی ثبت نشده است.</div>
                   ) : (
                     questionsList.map((qa) => (
                       <div key={qa._id} className="p-6 border border-gray-100 rounded-2xl bg-white shadow-sm space-y-3">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 rounded-full bg-gray-100 text-gray-700 text-xs font-bold flex items-center justify-center">؟</span>
                           <span className="font-bold text-xs text-gray-800">{qa.authorName}</span>
-                          <span className="text-[10px] text-gray-400">({new Date(qa.createdAt).toLocaleDateString('fa-IR')})</span>
                         </div>
                         <p className="text-xs text-gray-700 leading-relaxed font-medium pr-8">{qa.question}</p>
-
-                        {qa.isAnswered ? (
-                          <div className="mr-8 p-4 bg-amber-50/60 rounded-2xl border border-amber-200/60 space-y-1">
-                            <div className="flex items-center gap-1.5 text-xs font-black text-amber-800">
-                              <UserCheck size={16} className="text-amber-600" />
-                              <span>{qa.answeredBy}</span>
-                            </div>
-                            <p className="text-xs text-gray-700 leading-relaxed pr-5">{qa.answer}</p>
-                          </div>
-                        ) : (
-                          <div className="mr-8 text-xs text-gray-400 italic bg-gray-50 p-2.5 rounded-xl">
-                            در انتظار پاسخ کارشناس تغذیه در پنل مدیریت...
+                        {qa.isAnswered && (
+                          <div className="mr-8 p-4 bg-amber-50/60 rounded-2xl border border-amber-200/60 text-xs text-gray-700">
+                            <strong className="block text-amber-800 mb-1">{qa.answeredBy}:</strong>
+                            {qa.answer}
                           </div>
                         )}
                       </div>
@@ -381,10 +448,11 @@ const ProductDetail = () => {
                 </div>
               </div>
             )}
+
           </div>
         </div>
 
-        {/* محصولات مرتبط */}
+        {/* مکمل‌های پیشنهادی دوره */}
         {relatedProducts.length > 0 && (
           <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm mb-8">
             <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
@@ -397,23 +465,6 @@ const ProductDetail = () => {
         )}
 
       </div>
-
-      <div className="lg:hidden fixed bottom-14 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 p-3 z-40 shadow-lg flex items-center justify-between gap-4">
-        <div>
-          <span className="text-[10px] text-gray-400 block">قیمت:</span>
-          <span className="font-black text-gray-900 text-sm">{formatPrice(activePrice)} تومان</span>
-        </div>
-        <button
-          disabled={isOutOfStock}
-          onClick={() => addToCart(product, currentVariant, 1)}
-          className={`flex-1 py-3 px-6 rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-md ${
-            isOutOfStock ? 'bg-gray-200 text-gray-400' : 'bg-primary text-dark hover:bg-primary-hover'
-          }`}
-        >
-          <ShoppingCart size={16} /> {isOutOfStock ? 'ناموجود' : 'افزودن به سبد'}
-        </button>
-      </div>
-
     </div>
   );
 };
