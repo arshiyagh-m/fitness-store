@@ -8,10 +8,10 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white border-t border-gray-200 pt-10 mt-16 font-sans">
+    <footer className="bg-white border-t border-gray-200 pt-10 mt-16 font-sans" dir="rtl">
       <div className="container mx-auto px-4 max-w-6xl">
         
-        {/* نوار ۵ مزیت رقابتی با پوشش مکمل‌های خارجی و داروهای داروخانه‌ای */}
+        {/* نوار ۵ مزیت رقابتی طلایی Team 9 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6 pb-10 border-b border-gray-100 text-center">
           <div className="flex flex-col items-center gap-2">
             <div className="w-12 h-12 bg-primary/20 text-dark rounded-2xl flex items-center justify-center">
@@ -34,7 +34,7 @@ const Footer = () => {
               <Truck size={22} />
             </div>
             <span className="text-xs font-black text-gray-900">ارسال اکسپرس کشوری</span>
-            <span className="text-[11px] text-gray-400">بسته‌بندی ایمن دارویی</span>
+            <span className="text-[11px] text-gray-400">پست پیشتاز، تیپاکس و ماهکس</span>
           </div>
 
           <div className="flex flex-col items-center gap-2">
@@ -50,7 +50,7 @@ const Footer = () => {
               <Award size={22} />
             </div>
             <span className="text-xs font-black text-gray-900">باشگاه وفاداری</span>
-            <span className="text-[11px] text-gray-400">اعتبار نقدشونده در هر خرید</span>
+            <span className="text-[11px] text-gray-400">هر ۱۰۰ هزار تومن = ۱ امتیاز</span>
           </div>
         </div>
 
@@ -87,33 +87,52 @@ const Footer = () => {
             <div><Link to="/archive" className="text-gray-500 hover:text-primary transition-colors block py-1">کاتالوگ تمام محصولات</Link></div>
           </div>
 
-          {/* نمادهای اعتماد چندگانه (بین‌المللی و ملی) */}
+          {/* مجوزها و اینماد رسمی وزارت صمت */}
           <div className="space-y-3">
-            <h3 className="font-black text-sm text-gray-900 mb-4">مجوزها و تاییدیه اصالت</h3>
+            <h3 className="font-black text-sm text-gray-900 mb-4">مجوزها و تاییدیه رسمی</h3>
             <div className="grid grid-cols-2 gap-3">
+              
+              {/* 🌟 کد رسمی و تعاملی اینماد تجارت الکترونیکی */}
+              <a 
+                referrerPolicy="origin" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                href="https://trustseal.enamad.ir/?id=8009378&Code=0mwU335AXxWxpAHbobLDNWq69W5jmQUx"
+                className="p-3 bg-white rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500 text-center flex flex-col items-center justify-center transition-all shadow-sm group bg-emerald-50/20"
+                title="مشاهده شناسنامه رسمی اینماد Team 9"
+              >
+                <img 
+                  referrerPolicy="origin" 
+                  src="https://trustseal.enamad.ir/logo.aspx?id=8009378&Code=0mwU335AXxWxpAHbobLDNWq69W5jmQUx" 
+                  alt="نماد اعتماد الکترونیکی رسمی Team 9" 
+                  className="cursor-pointer max-h-16 object-contain group-hover:scale-105 transition-transform"
+                  code="0mwU335AXxWxpAHbobLDNWq69W5jmQUx"
+                />
+                <span className="text-[10px] font-black text-gray-800 mt-1">اینماد رسمی</span>
+                <span className="text-[9px] text-emerald-600 font-bold">وزارت صمت</span>
+              </a>
+
+              {/* اصالت وارداتی بین‌المللی */}
               <div className="p-3 bg-gray-50 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
                 <Globe size={26} className="text-blue-600" />
                 <span className="text-[10px] font-black text-gray-800">اصالت وارداتی</span>
                 <span className="text-[9px] text-gray-400">GS1 / Batch No</span>
               </div>
 
+              {/* فرآورده‌های دارویی و TTAC */}
               <div className="p-3 bg-gray-50 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
                 <Pill size={26} className="text-emerald-600" />
                 <span className="text-[10px] font-black text-gray-800">فرآورده دارویی</span>
                 <span className="text-[9px] text-gray-400">سامانه TTAC</span>
               </div>
 
-              <div className="p-3 bg-gray-50 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
-                <ShieldCheck size={26} className="text-dark" />
-                <span className="text-[10px] font-black text-gray-800">اینماد قانونی</span>
-                <span className="text-[9px] text-gray-400">کسب‌وکار اینترنتی</span>
-              </div>
-
+              {/* درگاه شاپرک */}
               <div className="p-3 bg-gray-50 rounded-2xl border border-gray-200 text-center flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
                 <CheckCircle size={26} className="text-amber-500" />
                 <span className="text-[10px] font-black text-gray-800">درگاه شاپرک</span>
                 <span className="text-[9px] text-gray-400">بانک مرکزی</span>
               </div>
+
             </div>
           </div>
 
