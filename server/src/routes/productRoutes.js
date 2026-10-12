@@ -6,7 +6,7 @@ import {
   updateProduct, 
   deleteProduct, 
   createProductReview,
-  updateStockQuick
+  bulkAdjustPrices
 } from '../controllers/productController.js';
 import { protect, admin } from '../middlewares/authMiddleware.js';
 
@@ -16,8 +16,8 @@ router.route('/')
   .get(getProducts)
   .post(protect, admin, createProduct);
 
-router.route('/stock/quick-update')
-  .put(protect, admin, updateStockQuick);
+router.route('/bulk/adjust-prices')
+  .put(protect, admin, bulkAdjustPrices);
 
 router.route('/:id')
   .get(getProductById)
