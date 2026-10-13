@@ -22,7 +22,10 @@ import Wishlist from './pages/Wishlist/Wishlist';
 import Compare from './pages/Compare/Compare';
 import NotFound from './pages/NotFound/NotFound';
 
-// صفحات استاتیک و حقوقی
+// فرم آنلاین ارزیابی ورزشکار دانیال سلیمانی
+import AthleteIntake from './pages/AthleteIntake/AthleteIntake';
+
+// صفحات حقوقی
 import AuthenticityGuide from './pages/Static/AuthenticityGuide';
 import ReturnPolicy from './pages/Static/ReturnPolicy';
 import AboutUs from './pages/Static/AboutUs';
@@ -42,12 +45,14 @@ import AdminUsers from './pages/Admin/AdminUsers';
 import AdminQA from './pages/Admin/AdminQA';
 import AdminAccounting from './pages/Admin/AdminAccounting';
 import AdminSettings from './pages/Admin/AdminSettings';
+import AdminIntakes from './pages/Admin/AdminIntakes';
+import AdminIntakeDetail from './pages/Admin/AdminIntakeDetail';
 
 const AppRoutes = () => {
   const location = useLocation();
   const { user } = useAuthStore();
   const isAdminPath = location.pathname.startsWith('/admin');
-  const isAuthPage = location.pathname === '/login' || location.pathname.startsWith('/payment');
+  const isAuthPage = location.pathname === '/login' || location.pathname.startsWith('/payment') || location.pathname === '/intake';
 
   if (isAdminPath) {
     if (!user) return <Navigate to="/login" replace />;
@@ -58,6 +63,8 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/intakes" element={<AdminIntakes />} />
+          <Route path="/admin/intakes/:id" element={<AdminIntakeDetail />} />
           <Route path="/admin/inventory" element={<AdminWarehouse />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/orders/:id" element={<AdminOrderDetails />} />
@@ -78,6 +85,7 @@ const AppRoutes = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {!isAuthPage && <Header />}
+      
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -92,6 +100,9 @@ const AppRoutes = () => {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/compare" element={<Compare />} />
           
+          {/* فرم پذیرش و ارزیابی آنلاین ورزشکار */}
+          <Route path="/intake" element={<AthleteIntake />} />
+
           <Route path="/authenticity-guide" element={<AuthenticityGuide />} />
           <Route path="/returns" element={<ReturnPolicy />} />
           <Route path="/about" element={<AboutUs />} />

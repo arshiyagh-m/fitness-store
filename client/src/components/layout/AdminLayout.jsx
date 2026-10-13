@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, Dumbbell, Ticket, Boxes, HelpCircle, Receipt } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, Dumbbell, Ticket, Boxes, HelpCircle, Receipt, UserCheck } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
 const AdminLayout = ({ children }) => {
@@ -9,6 +9,7 @@ const AdminLayout = ({ children }) => {
 
   const menuItems = [
     { name: 'داشبورد مدیریتی', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'پرونده‌های ورزشکاران', path: '/admin/intakes', icon: <UserCheck size={20} /> },
     { name: 'انبارداری و قفسه‌ها (WMS)', path: '/admin/inventory', icon: <Boxes size={20} /> },
     { name: 'سفارشات و بارنامه‌ها', path: '/admin/orders', icon: <ShoppingCart size={20} /> },
     { name: 'حسابداری و تراز مالی', path: '/admin/accounting', icon: <Receipt size={20} /> },
@@ -30,12 +31,12 @@ const AdminLayout = ({ children }) => {
         </div>
         <div className="p-6 border-b border-gray-800 flex items-center gap-4">
           <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center text-primary font-bold text-xl border border-gray-700">
-            {user?.name?.charAt(0) || 'A'}
+            {user?.name?.charAt(0) || 'D'}
           </div>
           <div>
-            <p className="text-white font-bold text-sm">{user?.name || 'مدیر کل'}</p>
+            <p className="text-white font-bold text-sm">{user?.name || 'دانیال سلیمانی'}</p>
             <p className="text-xs text-primary mt-1 font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-primary rounded-full animate-ping"></span> انبار فعال
+              <span className="w-1.5 h-1.5 bg-primary rounded-full animate-ping"></span> مربی ارشد
             </p>
           </div>
         </div>

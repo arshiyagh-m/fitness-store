@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ShoppingCart, LogIn, Menu, Dumbbell, User as UserIcon, X, ArrowLeft, Heart, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, LogIn, Menu, Dumbbell, User as UserIcon, X, ArrowLeft, Heart, ChevronDown, UserCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import useCartStore from '../../store/cartStore';
 import useAuthStore from '../../store/authStore';
@@ -106,6 +106,13 @@ const Header = () => {
 
         {/* اکشن‌ها */}
         <div className="flex items-center gap-3 border-r border-gray-200 pr-4">
+          
+          {/* دکمه اختصاصی پذیرش مربی */}
+          <Link to="/intake" className="hidden sm:flex items-center gap-1.5 bg-primary/10 hover:bg-primary text-dark px-3.5 py-2.5 rounded-xl text-xs font-black transition-all border border-primary/30">
+            <UserCheck size={16} className="text-primary group-hover:text-dark" />
+            <span>فرم پذیرش مربی دانیال سلیمانی</span>
+          </Link>
+
           <Link to="/wishlist" className="relative p-2.5 bg-gray-50 hover:bg-rose-50 rounded-xl transition-colors border border-gray-200 text-gray-600 hover:text-rose-500">
             <Heart size={20} className={wishlistItems.length > 0 ? 'text-rose-500 fill-rose-500' : ''} />
             {wishlistItems.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black h-4 w-4 rounded-full flex items-center justify-center">{wishlistItems.length}</span>}
@@ -134,15 +141,11 @@ const Header = () => {
         </div>
       </div>
       
-      {/* 🚀 مگامنو دیجی‌کالایی (Mega Menu) نوار مشکی */}
+      {/* مگامنو دیجی‌کالایی */}
       <nav className="border-t border-gray-100 hidden lg:block bg-dark relative">
         <div className="container mx-auto px-4 flex items-center gap-8 text-sm font-bold text-gray-300 h-12">
           
-          {/* دکمه باز شدن مگامنو */}
-          <div 
-            onMouseEnter={() => setMegaMenuOpen(true)}
-            className="flex items-center gap-2 text-primary hover:text-primary-hover cursor-pointer py-3"
-          >
+          <div onMouseEnter={() => setMegaMenuOpen(true)} className="flex items-center gap-2 text-primary hover:text-primary-hover cursor-pointer py-3">
             <Menu size={18} />
             <span>دسته‌بندی جامع کالاها</span>
             <ChevronDown size={14} />
@@ -158,15 +161,9 @@ const Header = () => {
           <Link to="/archive?category=gear-accessories" className="hover:text-white transition-colors">تجهیزات و شیکر</Link>
         </div>
 
-        {/* پنل مگامنو کشویی دو ستونه */}
         {megaMenuOpen && (
-          <div 
-            onMouseLeave={() => setMegaMenuOpen(false)}
-            className="absolute top-full right-0 left-0 bg-white border-b-2 border-primary shadow-2xl z-50 text-gray-800"
-          >
+          <div onMouseLeave={() => setMegaMenuOpen(false)} className="absolute top-full right-0 left-0 bg-white border-b-2 border-primary shadow-2xl z-50 text-gray-800">
             <div className="container mx-auto flex min-h-[380px]">
-              
-              {/* ستون راست: ۷ دسته اصلی مادر */}
               <div className="w-1/4 bg-gray-50 p-4 border-l border-gray-100 space-y-1">
                 {CATEGORY_TREE.map((cat) => (
                   <button
@@ -183,17 +180,10 @@ const Header = () => {
                 ))}
               </div>
 
-              {/* ستون چپ: تمام زیردسته‌های دقیق */}
               <div className="w-3/4 p-8">
                 <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-100">
-                  <h3 className="font-black text-dark text-base flex items-center gap-2">
-                    مشاهده همه محصولات {activeCategory.name}
-                  </h3>
-                  <Link 
-                    to={`/archive?category=${activeCategory.id}`} 
-                    onClick={() => setMegaMenuOpen(false)}
-                    className="text-xs font-bold text-primary hover:underline"
-                  >
+                  <h3 className="font-black text-dark text-base">مشاهده همه محصولات {activeCategory.name}</h3>
+                  <Link to={`/archive?category=${activeCategory.id}`} onClick={() => setMegaMenuOpen(false)} className="text-xs font-bold text-primary hover:underline">
                     کاتالوگ کامل این دسته ←
                   </Link>
                 </div>
@@ -211,7 +201,6 @@ const Header = () => {
                   ))}
                 </div>
               </div>
-
             </div>
           </div>
         )}
