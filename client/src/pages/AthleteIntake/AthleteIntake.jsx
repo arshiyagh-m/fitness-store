@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dumbbell, Send, CheckCircle2, Copy, Download, Printer, AlertTriangle, ShieldCheck, ArrowRight, UserCheck } from 'lucide-react';
+import { Dumbbell, Send, CheckCircle2, ShieldCheck, ArrowRight, Award, Sparkles, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
@@ -43,7 +43,6 @@ const AthleteIntake = () => {
     return true;
   };
 
-  // ارسال مستقیم و امن به دیتابیس مربی
   const handleSubmitOnline = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -69,10 +68,10 @@ const AthleteIntake = () => {
     <div className="bg-[#09090b] text-[#f4f4f5] min-h-screen py-10 px-4 font-sans selection:bg-primary selection:text-dark" dir="rtl">
       <div className="max-w-4xl mx-auto bg-[#121214] rounded-3xl border border-[#27272a] shadow-2xl overflow-hidden p-6 sm:p-12">
         
-        {/* برند و هدر دوره */}
+        {/* برند و نوار بالایی */}
         <div className="flex justify-between items-center pb-6 border-b border-[#27272a] mb-8">
-          <Link to="/" className="flex items-center gap-2 text-primary font-black text-sm">
-            <ArrowRight size={18} /> بازگشت به فروشگاه Team 9
+          <Link to="/" className="flex items-center gap-2 text-primary font-black text-xs hover:underline">
+            <ArrowRight size={16} /> بازگشت به فروشگاه Team 9
           </Link>
           <div className="text-left font-mono">
             <span className="text-xs text-primary font-black tracking-widest block">DANIAL SOLEIMANI</span>
@@ -80,17 +79,54 @@ const AthleteIntake = () => {
           </div>
         </div>
 
-        {/* تایتل فرم */}
-        <div className="bg-gradient-to-r from-[#18181b] to-[#09090b] p-8 rounded-2xl border border-[#27272a] text-center mb-8 relative overflow-hidden">
-          <div className="w-16 h-16 bg-primary/20 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/30">
-            <Dumbbell size={32} />
+        {/* 🌟 بنر هدر اختصاصی و ژورنالی با تصویر دانیال سلیمانی */}
+        <div className="bg-gradient-to-br from-[#18181b] via-[#121214] to-[#09090b] rounded-3xl border border-[#27272a] p-6 sm:p-8 mb-8 relative overflow-hidden shadow-xl">
+          <div className="flex flex-col md:flex-row items-center gap-8 z-10 relative">
+            
+            {/* تصویر مربی با کادر طلایی و استایل حرفه‌ای */}
+            <div className="w-40 sm:w-48 aspect-[3/4] rounded-2xl overflow-hidden border-2 border-primary shadow-[0_0_30px_rgba(251,191,36,0.15)] shrink-0 bg-dark relative group">
+              <img 
+                src="/images/coach.jpg" 
+                alt="دانیال سلیمانی - مربی ارشد Team 9" 
+                onError={(e) => {
+                  // در صورت نبود عکس تا زمان آپلود، فال‌بک تمیز دمبل نشان داده شود
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+                className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-700"
+              />
+              <div className="hidden absolute inset-0 bg-dark items-center justify-center flex-col text-primary">
+                <Dumbbell size={40} />
+                <span className="text-[10px] text-gray-400 mt-2">تصویر مربی</span>
+              </div>
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2 text-center">
+                <span className="text-[10px] font-black text-primary block">دانیال سلیمانی</span>
+                <span className="text-[8px] text-gray-400 font-mono">HEAD COACH</span>
+              </div>
+            </div>
+
+            {/* توضیحات و پیام مربی به ورزشکار */}
+            <div className="space-y-3 text-center md:text-right flex-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-black">
+                <Sparkles size={14} /> فرم اختصاصی پذیرش و ارزیابی ورزشکار
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                به مسیر تحول اصولی بدن خوش آمدید!
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-medium">
+                «بدن شما یک سازه مهندسی است؛ نه شانس و تصادف! هر چه اطلاعات این فرم (آسیب‌ها، سوابق وزنه، عادات غذایی و خواب) را دقیق‌تر بنویسید، برنامه‌ای که شخصاً برای شما طراحی می‌کنم کارآمدتر و بدون ریسک آسیب خواهد بود.»
+              </p>
+              <div className="pt-2 flex flex-wrap gap-4 justify-center md:justify-start text-[11px] text-gray-400 font-bold">
+                <span className="flex items-center gap-1"><Award size={14} className="text-primary"/> طراحی کاملاً اختصاصی</span>
+                <span className="flex items-center gap-1"><UserCheck size={14} className="text-primary"/> پشتیبانی و چک‌این هفتگی</span>
+              </div>
+            </div>
+
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-primary mb-2">فرم پذیرش و ارزیابی اولیه ورزشکار</h1>
-          <p className="text-xs sm:text-sm text-gray-400 font-medium">دوره آموزشی و طراحی اختصاصی برنامه تمرین و تغذیه دانیال سلیمانی</p>
         </div>
 
         <div className="p-4 bg-primary/10 border-r-4 border-primary rounded-xl text-primary text-xs sm:text-sm font-bold leading-relaxed mb-8">
-          ورزشکار عزیز؛ هرچه این فرم را دقیق‌تر پر کنی، برنامه تمرینی و تغذیه ارائه‌شده دقیق‌تر و کارآمدتر خواهد بود. لطفاً با صبر و تمرکز به سوالات پاسخ دهید.
+          ورزشکار عزیز؛ لطفاً با حوصله و تمرکز تمام ۱۱ بخش زیر را تکمیل کنید. اطلاعات شما محرمانه و صرفاً جهت طراحی علمی برنامه در اختیار مربی قرار می‌گیرد.
         </div>
 
         {statusMsg.text && (
@@ -221,7 +257,7 @@ const AthleteIntake = () => {
             </div>
           </div>
 
-          {/* ۶. جدول سایزها و اندازه‌گیری‌های بدنی */}
+          {/* ۶. اندازه‌گیری‌های بدنی */}
           <div className="p-6 bg-[#09090b] rounded-2xl border border-[#27272a] space-y-6">
             <h2 className="text-base font-black text-white flex items-center gap-2 pb-4 border-b border-[#27272a]">
               <span className="w-7 h-7 bg-primary text-dark rounded-lg flex items-center justify-center text-xs font-black">۶</span>
@@ -237,7 +273,7 @@ const AthleteIntake = () => {
             </div>
           </div>
 
-          {/* ۷. تعهدنامه اخلاقی و ورزشی */}
+          {/* ۷. تعهدنامه اخلاقی */}
           <div className="p-6 bg-rose-500/5 rounded-2xl border border-rose-500/20 space-y-4 text-xs">
             <h3 className="font-black text-rose-400 flex items-center gap-2">
               <ShieldCheck size={18}/> تعهدنامه انضباطی ورزشکار
@@ -251,7 +287,7 @@ const AthleteIntake = () => {
             </label>
           </div>
 
-          {/* دکمه ارسال به سرور و مربی */}
+          {/* دکمه ثبت */}
           <div className="pt-4">
             <button
               type="submit"
