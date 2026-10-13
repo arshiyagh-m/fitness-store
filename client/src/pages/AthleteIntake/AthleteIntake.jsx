@@ -68,7 +68,7 @@ const AthleteIntake = () => {
     <div className="bg-[#09090b] text-[#f4f4f5] min-h-screen py-10 px-4 font-sans selection:bg-primary selection:text-dark" dir="rtl">
       <div className="max-w-4xl mx-auto bg-[#121214] rounded-3xl border border-[#27272a] shadow-2xl overflow-hidden p-6 sm:p-12">
         
-        {/* برند و نوار بالایی */}
+        {/* نوار بالایی */}
         <div className="flex justify-between items-center pb-6 border-b border-[#27272a] mb-8">
           <Link to="/" className="flex items-center gap-2 text-primary font-black text-xs hover:underline">
             <ArrowRight size={16} /> بازگشت به فروشگاه Team 9
@@ -79,29 +79,28 @@ const AthleteIntake = () => {
           </div>
         </div>
 
-        {/* 🌟 بنر هدر اختصاصی و ژورنالی با تصویر دانیال سلیمانی */}
+        {/* 🌟 بنر هدر اختصاصی با تصویر کامل و بدون کات شدن دانیال سلیمانی */}
         <div className="bg-gradient-to-br from-[#18181b] via-[#121214] to-[#09090b] rounded-3xl border border-[#27272a] p-6 sm:p-8 mb-8 relative overflow-hidden shadow-xl">
           <div className="flex flex-col md:flex-row items-center gap-8 z-10 relative">
             
-            {/* تصویر مربی با کادر طلایی و استایل حرفه‌ای */}
-            <div className="w-40 sm:w-48 aspect-[3/4] rounded-2xl overflow-hidden border-2 border-primary shadow-[0_0_30px_rgba(251,191,36,0.15)] shrink-0 bg-dark relative group">
+            {/* قاب تصویر کامل مربی (object-contain برای جلوگیری از هرگونه کات شدن) */}
+            <div className="w-48 sm:w-56 h-[340px] sm:h-[400px] rounded-3xl overflow-hidden border-2 border-primary shadow-[0_0_35px_rgba(251,191,36,0.2)] shrink-0 bg-black relative group flex items-center justify-center">
               <img 
                 src="/images/coach.jpg" 
                 alt="دانیال سلیمانی - مربی ارشد Team 9" 
                 onError={(e) => {
-                  // در صورت نبود عکس تا زمان آپلود، فال‌بک تمیز دمبل نشان داده شود
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
                 }}
-                className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-700"
+                className="w-full h-full object-contain hover:scale-105 transition-transform duration-500 select-none"
               />
               <div className="hidden absolute inset-0 bg-dark items-center justify-center flex-col text-primary">
                 <Dumbbell size={40} />
                 <span className="text-[10px] text-gray-400 mt-2">تصویر مربی</span>
               </div>
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2 text-center">
-                <span className="text-[10px] font-black text-primary block">دانیال سلیمانی</span>
-                <span className="text-[8px] text-gray-400 font-mono">HEAD COACH</span>
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/80 to-transparent p-3 text-center pointer-events-none">
+                <span className="text-xs font-black text-primary block">دانیال سلیمانی</span>
+                <span className="text-[9px] text-gray-400 font-mono tracking-wider">HEAD COACH & ARCHITECT</span>
               </div>
             </div>
 
