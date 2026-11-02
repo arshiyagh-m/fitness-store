@@ -2,11 +2,11 @@ import mongoose from 'mongoose';
 
 const ProductSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  slug: { type: String, required: true, unique: true },
+  slug: { type: String, required: true },
   brand: { type: String, required: true },
   category: { type: String, required: true },
   subcategory: { type: String, default: '' },
-  description: { type: String, required: true },
+  description: { type: String, default: '' },
   images: [{ type: String }],
   
   attributes: {
@@ -18,22 +18,21 @@ const ProductSchema = new mongoose.Schema({
     usageGuide: { type: String, default: '' },
   },
 
-  // جدول پویای ارزش غذایی (نام ماده + مقدار در سروینگ + درصد نیاز روزانه)
   nutritionFacts: [{
-    ingredient: { type: String, required: true },
-    amount: { type: String, required: true },
+    ingredient: { type: String, default: '' },
+    amount: { type: String, default: '' },
     dailyValue: { type: String, default: '-' }
   }],
 
   variants: [{
-    sku: String,
-    flavor: String,
-    weight: String,
-    price: Number,
-    discountPrice: Number,
-    stock: Number,
-    sibSalamat: String,
-    expiryDate: String, // تاریخ انقضای بچ
+    sku: { type: String, default: '' },
+    flavor: { type: String, default: '' },
+    weight: { type: String, default: '' },
+    price: { type: Number, required: true, default: 0 },
+    discountPrice: { type: Number, default: null },
+    stock: { type: Number, required: true, default: 0 },
+    sibSalamat: { type: String, default: '' },
+    expiryDate: { type: String, default: '' },
   }],
 
   reviews: [{

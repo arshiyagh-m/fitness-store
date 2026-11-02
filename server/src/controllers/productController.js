@@ -13,8 +13,40 @@ export const getProductById = asyncHandler(async (req, res) => {
   else { res.status(404); throw new Error('محصول یافت نشد'); }
 });
 
+// ثبت تضمینی محصول بدون گیر کردن روی اسلاگ تکراری
 export const createProduct = asyncHandler(async (req, res) => {
-  const product = new Product(req.body);
+  let { title, slug, brand, category, subcategory, description, images, attributes, nutritionFacts, variants } = req.body;
+
+  if (!title || !brand || !category) {
+    res.status(400); throw new Error('نام محصول، برند و دسته‌بندی الزامی هستند');
+  }
+
+  // تولید اسلاگ خودکار در صورت خالی بودن یا تکراری بودن
+  let cleanSlug = slug ? slug.toLowerCase().trim().replace(/\s+/g, '-') : Date.now().toString();
+  const slugExists = await Product.findOne({ slug: cleanSlug });
+  if (slugExists) {
+    cleanSlug = `${cleanSlug}-${Math.floor(100 + Math.random() * 900)}`;
+  }
+
+  const product = new Product({
+    title,
+    slug: cleanSlug,
+    brand,
+    category,
+    subcategory: subcategory || '',
+    description: description || '',
+    images: images || [],
+    attributes: attributes || {},
+    nutritionFacts: nutritionFacts || [],
+    variants: variants && variants.length > 0 ? variants : [{
+      sku: `SKU-${Date.now().toString().slice(-6)}`,
+      flavor: 'پیش‌فرض',
+      weight: 'استاندارد',
+      price: 100000,
+      stock: 10
+    }]
+  });
+
   const createdProduct = await product.save();
   res.status(201).json(createdProduct);
 });
@@ -26,6 +58,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     product.slug = req.body.slug || product.slug;
     product.brand = req.body.brand || product.brand;
     product.category = req.body.category || product.category;
+    product.subcategory = req.body.subcategory || product.subcategory;
     product.description = req.body.description || product.description;
     product.images = req.body.images || product.images;
     product.attributes = req.body.attributes || product.attributes;
@@ -39,29 +72,42 @@ export const updateProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// ویرایش سریع موجودی یک SKU خاص در انبار
-export const updateStockQuick = asyncHandler(async (req, res) => {
-  const { productId, sku, newStock } = req.body;
-  const product = await Product.findById(productId);
-  if (product) {
-    const variant = product.variants.find(v => v.sku === sku);
-    if (variant) {
-      variant.stock = Number(newStock);
-      await product.save();
-      res.json({ message: 'موجودی انبار با موفقیت بروز شد', sku, newStock });
-    } else {
-      res.status(404); throw new Error('تنوع کالایی یافت نشد');
-    }
-  } else {
-    res.status(404); throw new Error('محصول یافت نشد');
+export const bulkAdjustPrices = asyncHandler(async (req, res) => {
+  const { percentage, roundToThousand = true } = req.body;
+  const percent = Number(percentage);
+
+  if (isNaN(percent) || percent === 0) {
+    res.status(400); throw new Error('درصد تغییر قیمت نامعتبر است');
   }
+
+  const products = await Product.find({ isActive: true });
+  let count = 0;
+
+  for (const product of products) {
+    if (product.variants && product.variants.length > 0) {
+      product.variants.forEach(variant => {
+        if (variant.price) {
+          let newPrice = variant.price * (1 + percent / 100);
+          variant.price = roundToThousand ? Math.round(newPrice / 1000) * 1000 : Math.round(newPrice);
+        }
+        if (variant.discountPrice) {
+          let newDisc = variant.discountPrice * (1 + percent / 100);
+          variant.discountPrice = roundToThousand ? Math.round(newDisc / 1000) * 1000 : Math.round(newDisc);
+        }
+      });
+      await product.save();
+      count++;
+    }
+  }
+
+  res.json({ message: 'قیمت ' + count + ' محصول با موفقیت ' + percent + ' درصد تغییر یافت.', count });
 });
 
 export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (product) {
     await Product.deleteOne({ _id: product._id });
-    res.json({ message: 'محصول حذف شد' });
+    res.json({ message: 'محصول با موفقیت حذف شد' });
   } else {
     res.status(404); throw new Error('محصول یافت نشد');
   }
@@ -72,7 +118,7 @@ export const createProductReview = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (product) {
     const alreadyReviewed = product.reviews.find(r => r.user.toString() === req.user._id.toString());
-    if (alreadyReviewed) { res.status(400); throw new Error('شما قبلاً نظر داده‌اید'); }
+    if (alreadyReviewed) { res.status(400); throw new Error('شما قبلاً نظر ثبت کرده‌اید'); }
     product.reviews.push({ name: req.user.name, rating: Number(rating), comment, user: req.user._id });
     product.numReviews = product.reviews.length;
     product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
