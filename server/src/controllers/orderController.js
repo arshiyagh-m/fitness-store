@@ -1,104 +1,93 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
+import Setting from '../models/Setting.js';
 import { sendAutomatedSMS } from '../utils/smsService.js';
+import { createDigipayTicket, verifyDigipayPayment } from '../utils/digipayService.js';
 
 export const addOrderItems = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, shippingNotes, paymentMethod, courierCompany, shippingPrice, totalPrice } = req.body;
-  
-  if (orderItems && orderItems.length === 0) {
-    res.status(400); throw new Error('سبد خرید خالی است');
-  }
+  if (orderItems && orderItems.length === 0) { res.status(400); throw new Error('سبد خالی است'); }
 
-  const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
-
+  const invoiceNumber = 'INV-' + Date.now().toString().slice(-6) + '-' + Math.floor(100 + Math.random() * 900);
   const order = new Order({ 
-    user: req.user._id, 
-    invoiceNumber,
-    orderItems, 
-    shippingAddress, 
-    shippingNotes: shippingNotes || '',
-    paymentMethod,
-    courierCompany: courierCompany || 'پست پیشتاز',
-    shippingPrice: Number(shippingPrice) || 0,
-    totalPrice: Number(totalPrice)
+    user: req.user._id, invoiceNumber, orderItems, shippingAddress, 
+    shippingNotes: shippingNotes || '', paymentMethod: paymentMethod || 'دیجی‌پی', 
+    courierCompany: courierCompany || 'پست پیشتاز', shippingPrice: Number(shippingPrice) || 0, totalPrice: Number(totalPrice) 
   });
-  
   const createdOrder = await order.save();
 
-  sendAutomatedSMS({
-    phone: shippingAddress.phone,
-    message: `ورزشکار گرامی، سفارش شما با شماره فاکتور ${invoiceNumber} در Team 9 ثبت شد و به زودی تحویل ${order.courierCompany} می‌گردد.`
-  });
-
   for (const item of orderItems) {
-    const product = await Product.findById(item.product);
-    if (product) {
-      const variantIndex = product.variants.findIndex(v => v.sku === item.variant.sku);
-      if (variantIndex !== -1) {
-        product.variants[variantIndex].stock -= item.qty;
-        await product.save();
-      }
+    const p = await Product.findById(item.product);
+    if (p) {
+      const idx = p.variants.findIndex(v => v.sku === item.variant.sku);
+      if (idx !== -1) { p.variants[idx].stock -= item.qty; await p.save(); }
     }
   }
   res.status(201).json(createdOrder);
 });
 
-export const updateOrderToPaid = asyncHandler(async (req, res) => {
+export const requestPayment = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
-  if (order) {
-    order.isPaid = true;
-    order.paidAt = Date.now();
-    order.paymentResult = {
-      id: req.body.id || `TRX-${Math.floor(10000000 + Math.random() * 90000000)}`,
-      status: 'SUCCESS',
-      update_time: new Date().toISOString(),
-    };
-    const updatedOrder = await order.save();
-    res.json(updatedOrder);
-  } else {
-    res.status(404); throw new Error('سفارش پیدا نشد');
+  const setting = await Setting.findOne();
+
+  if (setting && setting.paymentGatewayProvider === 'digipay' && setting.digipayClientId) {
+    try {
+      const callbackUrl = 'https://team9.ir/api/orders/digipay/callback?orderId=' + order._id;
+      const ticket = await createDigipayTicket({ order, amountInRials: order.totalPrice * 10, callbackUrl });
+      return res.json({ paymentUrl: ticket.redirectUrl });
+    } catch (err) {
+      res.status(400); throw new Error('خطا در دیجی‌پی: ' + err.message);
+    }
+  }
+  res.json({ paymentUrl: '/payment/' + order._id });
+});
+
+export const digipayCallback = asyncHandler(async (req, res) => {
+  const { orderId, trackingCode } = req.query;
+  const order = await Order.findById(orderId);
+  if (!order) return res.redirect('/cart');
+
+  try {
+    if (trackingCode) {
+      await verifyDigipayPayment(trackingCode);
+      order.isPaid = true;
+      order.paidAt = Date.now();
+      order.paymentResult = { id: trackingCode, status: 'SUCCESS' };
+      await order.save();
+      return res.redirect('/order/' + order._id + '/success');
+    }
+    res.redirect('/payment/' + order._id);
+  } catch (err) {
+    res.redirect('/order/' + order._id + '/success');
   }
 });
 
+export const updateOrderToPaid = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  order.isPaid = true;
+  order.paidAt = Date.now();
+  order.paymentResult = { id: req.body.id || ('TRX-' + Date.now()), status: 'SUCCESS' };
+  res.json(await order.save());
+});
+
 export const getMyOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
-  res.json(orders);
+  res.json(await Order.find({ user: req.user._id }).sort({ createdAt: -1 }));
 });
 
 export const getOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({}).populate('user', 'id name phone').sort({ createdAt: -1 });
-  res.json(orders);
+  res.json(await Order.find({}).populate('user', 'name phone').sort({ createdAt: -1 }));
 });
 
 export const getOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'name phone');
-  if (order) res.json(order);
-  else { res.status(404); throw new Error('سفارش یافت نشد'); }
+  res.json(order);
 });
 
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
-  if (order) {
-    order.orderStatus = req.body.status || order.orderStatus;
-    if (req.body.postalTrackingCode !== undefined) {
-      order.postalTrackingCode = req.body.postalTrackingCode;
-    }
-    if (req.body.courierCompany) {
-      order.courierCompany = req.body.courierCompany;
-    }
-
-    const updatedOrder = await order.save();
-
-    if (req.body.postalTrackingCode) {
-      sendAutomatedSMS({
-        phone: order.shippingAddress.phone,
-        message: `سفارش فاکتور #${order.invoiceNumber || order._id.substring(18)} تحویل ${order.courierCompany} گردید.\nکد رهگیری پستی:\n${req.body.postalTrackingCode}\nفروشگاه Team 9`
-      });
-    }
-
-    res.json(updatedOrder);
-  } else {
-    res.status(404); throw new Error('سفارش یافت نشد');
-  }
+  order.orderStatus = req.body.status || order.orderStatus;
+  if (req.body.postalTrackingCode !== undefined) order.postalTrackingCode = req.body.postalTrackingCode;
+  if (req.body.courierCompany) order.courierCompany = req.body.courierCompany;
+  res.json(await order.save());
 });
