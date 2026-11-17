@@ -3,9 +3,7 @@ import Setting from '../models/Setting.js';
 
 export const getSettings = asyncHandler(async (req, res) => {
   let setting = await Setting.findOne();
-  if (!setting) {
-    setting = await Setting.create({});
-  }
+  if (!setting) setting = await Setting.create({});
   res.json(setting);
 });
 

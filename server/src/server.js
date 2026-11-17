@@ -13,6 +13,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
 import settingRoutes from './routes/settingRoutes.js';
+import athleteIntakeRoutes from './routes/athleteIntakeRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -30,9 +31,10 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/settings', settingRoutes);
+app.use('/api/athlete-intake', athleteIntakeRoutes);
 
 const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/api/health', (req, res) => res.json({ status: 'API is running' }));
 
@@ -42,4 +44,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Server is running on port 5000');
+});

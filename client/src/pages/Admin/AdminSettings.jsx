@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Save, ShieldCheck, Smartphone, Loader2, CreditCard, Truck, Flag, Phone, DollarSign } from 'lucide-react';
+import { Settings, Save, ShieldCheck, Smartphone, Loader2, CreditCard, Truck, Flag, Phone, Globe, DollarSign, Mail, MapPin } from 'lucide-react';
 import api from '../../services/api';
 
 const AdminSettings = () => {
@@ -14,7 +14,9 @@ const AdminSettings = () => {
     bannerTitle: 'سوختِ عضلات خود را تامین کنید.',
     bannerSubtitle: 'کالکشن جدید ۲۰۲۴',
     bannerActive: true,
-    announcementText: 'ارسال با پست پیشتاز، تیپاکس و ماهکس',
+    announcementText: '🔥 ارسال به سراسر کشور با پست پیشتاز، تیپاکس و ماهکس',
+    announcementActive: true,
+
     phoneSupport: '021-12345678',
     phoneMobile: '09120000000',
     emailOfficial: 'support@team9.ir',
@@ -22,10 +24,12 @@ const AdminSettings = () => {
     instagramId: 'team9_store',
     telegramChannel: 'team9_supplements',
     workingHours: 'شنبه تا پنج‌شنبه ۹ الی ۲۱',
+
     shippingPostPrice: 55000,
     shippingTipaxPrice: 85000,
     shippingMahexPrice: 95000,
     freeShippingThreshold: 1500000,
+
     paymentGatewayProvider: 'simulator',
     digipayUsername: '',
     digipayClientId: '',
@@ -62,9 +66,9 @@ const AdminSettings = () => {
         theme: settings.theme
       }));
       document.documentElement.setAttribute('data-theme', settings.theme);
-      alert('تمامی تنظیمات با موفقیت در دیتابیس ذخیره و اعمال شد!');
+      alert('تمامی تنظیمات با موفقیت در دیتابیس ذخیره و در سایت فعال شد!');
     } catch (err) {
-      alert(err.response?.data?.message || 'خطا در ذخیره تنظیمات');
+      alert(err.response?.data?.message || 'خطا در برقراری ارتباط با سرور');
     } finally {
       setIsSaving(false);
     }
@@ -74,6 +78,7 @@ const AdminSettings = () => {
 
   return (
     <div className="max-w-6xl mx-auto pb-16 font-sans" dir="rtl">
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-xl font-black text-gray-900 flex items-center gap-2">
@@ -103,6 +108,7 @@ const AdminSettings = () => {
 
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-8">
         
+        {/* ۱. دیجی‌پی و پیامک */}
         {activeTab === 'apis' && (
           <div className="space-y-6">
             <div className="p-6 bg-blue-50/40 rounded-2xl border-2 border-blue-200 space-y-4">
@@ -113,8 +119,8 @@ const AdminSettings = () => {
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">نوع درگاه</label>
                   <select value={settings.paymentGatewayProvider} onChange={e => setSettings({...settings, paymentGatewayProvider: e.target.value})} className="w-full px-4 py-2.5 bg-white border rounded-xl text-xs font-black outline-none focus:border-blue-500">
-                    <option value="simulator">شبیه‌ساز تستی (فعلی)</option>
-                    <option value="digipay">درگاه زنده دیجی‌پی شاپرک</option>
+                    <option value="simulator">شبیه‌ساز تستی (بدون کسر پول)</option>
+                    <option value="digipay">درگاه زنده دیجی‌پی رسمی</option>
                   </select>
                 </div>
                 <div>
@@ -156,6 +162,7 @@ const AdminSettings = () => {
           </div>
         )}
 
+        {/* ۲. تم زنده و بنر */}
         {activeTab === 'branding' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -192,6 +199,7 @@ const AdminSettings = () => {
           </div>
         )}
 
+        {/* ۳. اطلاعات تماس و شبکه‌ها */}
         {activeTab === 'contact' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -225,6 +233,7 @@ const AdminSettings = () => {
           </div>
         )}
 
+        {/* ۴. تعرفه‌ها */}
         {activeTab === 'logistics' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
