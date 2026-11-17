@@ -1,9 +1,5 @@
 import express from 'express';
 import { getSettings, updateSettings } from '../controllers/settingController.js';
-
 const router = express.Router();
-router.route('/')
-  .get(getSettings)
-  .put(updateSettings);
-
+router.route('/').get(getSettings).put(updateSettings);
 export default router;

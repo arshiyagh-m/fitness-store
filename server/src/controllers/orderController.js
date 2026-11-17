@@ -8,7 +8,6 @@ import { createDigipayTicket, verifyDigipayPayment } from '../utils/digipayServi
 export const addOrderItems = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, shippingNotes, paymentMethod, courierCompany, shippingPrice, totalPrice } = req.body;
   if (orderItems && orderItems.length === 0) { res.status(400); throw new Error('سبد خالی است'); }
-
   const invoiceNumber = 'INV-' + Date.now().toString().slice(-6) + '-' + Math.floor(100 + Math.random() * 900);
   const order = new Order({ 
     user: req.user._id, invoiceNumber, orderItems, shippingAddress, 
@@ -16,7 +15,6 @@ export const addOrderItems = asyncHandler(async (req, res) => {
     courierCompany: courierCompany || 'پست پیشتاز', shippingPrice: Number(shippingPrice) || 0, totalPrice: Number(totalPrice) 
   });
   const createdOrder = await order.save();
-
   for (const item of orderItems) {
     const p = await Product.findById(item.product);
     if (p) {
@@ -30,7 +28,6 @@ export const addOrderItems = asyncHandler(async (req, res) => {
 export const requestPayment = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
   const setting = await Setting.findOne();
-
   if (setting && setting.paymentGatewayProvider === 'digipay' && setting.digipayClientId) {
     try {
       const callbackUrl = 'https://team9.ir/api/orders/digipay/callback?orderId=' + order._id;
@@ -47,7 +44,6 @@ export const digipayCallback = asyncHandler(async (req, res) => {
   const { orderId, trackingCode } = req.query;
   const order = await Order.findById(orderId);
   if (!order) return res.redirect('/cart');
-
   try {
     if (trackingCode) {
       await verifyDigipayPayment(trackingCode);
@@ -65,25 +61,20 @@ export const digipayCallback = asyncHandler(async (req, res) => {
 
 export const updateOrderToPaid = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
-  order.isPaid = true;
-  order.paidAt = Date.now();
+  order.isPaid = true; order.paidAt = Date.now();
   order.paymentResult = { id: req.body.id || ('TRX-' + Date.now()), status: 'SUCCESS' };
   res.json(await order.save());
 });
-
 export const getMyOrders = asyncHandler(async (req, res) => {
   res.json(await Order.find({ user: req.user._id }).sort({ createdAt: -1 }));
 });
-
 export const getOrders = asyncHandler(async (req, res) => {
   res.json(await Order.find({}).populate('user', 'name phone').sort({ createdAt: -1 }));
 });
-
 export const getOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate('user', 'name phone');
   res.json(order);
 });
-
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
   order.orderStatus = req.body.status || order.orderStatus;

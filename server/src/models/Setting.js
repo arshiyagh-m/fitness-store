@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 const SettingSchema = new mongoose.Schema({
   paymentGatewayProvider: { type: String, default: 'simulator' },
   digipayUsername: { type: String, default: '' },
@@ -21,7 +20,6 @@ const SettingSchema = new mongoose.Schema({
   bannerSubtitle: { type: String, default: 'کالکشن جدید ۲۰۲۴' },
   bannerActive: { type: Boolean, default: true },
   announcementText: { type: String, default: 'ارسال با پست پیشتاز، تیپاکس و ماهکس' },
-  announcementActive: { type: Boolean, default: true },
   phoneSupport: { type: String, default: '021-12345678' },
   phoneMobile: { type: String, default: '09120000000' },
   emailOfficial: { type: String, default: 'support@team9.ir' },
@@ -30,5 +28,4 @@ const SettingSchema = new mongoose.Schema({
   telegramChannel: { type: String, default: 'team9_supplements' },
   workingHours: { type: String, default: 'شنبه تا پنج‌شنبه ۹ الی ۲۱' },
 }, { timestamps: true });
-
 export default mongoose.model('Setting', SettingSchema);
