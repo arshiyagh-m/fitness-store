@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Grid, ShoppingBag, Heart, User } from 'lucide-react';
+import { Dumbbell } from 'lucide-react';
 import useCartStore from '../../store/cartStore';
 import useWishlistStore from '../../store/wishlistStore';
 import useAuthStore from '../../store/authStore';
@@ -61,7 +62,18 @@ const MobileBottomNav = () => {
           <span className="text-[10px] font-black">سبد خرید</span>
         </Link>
 
-        {/* علاقه‌مندی‌ها */}
+                {/* مربی‌گری */}
+        <Link 
+          to="/coaching" 
+          className={`flex flex-col items-center gap-1 transition-colors ${
+            pathname === '/coaching' ? 'text-primary' : 'text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          <Dumbbell size={20} className={pathname === '/coaching' ? 'stroke-[2.5]' : ''} />
+          <span className="text-[10px] font-black">مربی‌گری</span>
+        </Link>
+
+{/* علاقه‌مندی‌ها */}
         <Link 
           to="/wishlist" 
           className={`flex flex-col items-center gap-1 relative transition-colors ${

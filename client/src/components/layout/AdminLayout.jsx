@@ -14,6 +14,7 @@ const AdminLayout = ({ children }) => {
     { name: 'حسابداری و تراز مالی', path: '/admin/accounting', icon: <Receipt size={20} /> },
     { name: 'کاتالوگ مکمل‌ها', path: '/admin/products', icon: <Package size={20} /> },
     { name: 'پاسخ به سوالات مربی', path: '/admin/questions', icon: <HelpCircle size={20} /> },
+    { name: 'درخواست‌های مربی‌گری', path: '/admin/coaching', icon: <Dumbbell size={20} /> },
     { name: 'مدیریت کاربران', path: '/admin/users', icon: <Users size={20} /> },
     { name: 'کدهای تخفیف', path: '/admin/coupons', icon: <Ticket size={20} /> },
     { name: 'تنظیمات فروشگاه', path: '/admin/settings', icon: <Settings size={20} /> },

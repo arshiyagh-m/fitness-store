@@ -27,6 +27,7 @@ import AuthenticityGuide from './pages/Static/AuthenticityGuide';
 import ReturnPolicy from './pages/Static/ReturnPolicy';
 import AboutUs from './pages/Static/AboutUs';
 import ContactUs from './pages/Static/ContactUs';
+import CoachingForm from './pages/Coaching/CoachingForm';
 
 // صفحات ادمین
 import AdminLayout from './components/layout/AdminLayout';
@@ -42,6 +43,7 @@ import AdminUsers from './pages/Admin/AdminUsers';
 import AdminQA from './pages/Admin/AdminQA';
 import AdminAccounting from './pages/Admin/AdminAccounting';
 import AdminSettings from './pages/Admin/AdminSettings';
+import AdminCoaching from './pages/Admin/AdminCoaching';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -66,6 +68,7 @@ const AppRoutes = () => {
           <Route path="/admin/products/add" element={<AdminAddProduct />} />
           <Route path="/admin/products/edit/:id" element={<AdminEditProduct />} />
           <Route path="/admin/questions" element={<AdminQA />} />
+          <Route path="/admin/coaching" element={<AdminCoaching />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/coupons" element={<AdminCoupons />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
@@ -96,6 +99,7 @@ const AppRoutes = () => {
           <Route path="/returns" element={<ReturnPolicy />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
+          <Route path="/coaching" element={<CoachingForm />} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

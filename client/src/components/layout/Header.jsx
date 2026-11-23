@@ -106,7 +106,12 @@ const Header = () => {
 
         {/* اکشن‌ها */}
         <div className="flex items-center gap-3 border-r border-gray-200 pr-4">
-          <Link to="/wishlist" className="relative p-2.5 bg-gray-50 hover:bg-rose-50 rounded-xl transition-colors border border-gray-200 text-gray-600 hover:text-rose-500">
+                    <Link to="/coaching" className="flex items-center gap-1.5 bg-primary text-dark hover:bg-primary-hover px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black shadow-sm transition-all shrink-0">
+            <Dumbbell size={17} />
+            <span>درخواست مربی‌گری</span>
+          </Link>
+
+<Link to="/wishlist" className="relative p-2.5 bg-gray-50 hover:bg-rose-50 rounded-xl transition-colors border border-gray-200 text-gray-600 hover:text-rose-500">
             <Heart size={20} className={wishlistItems.length > 0 ? 'text-rose-500 fill-rose-500' : ''} />
             {wishlistItems.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-black h-4 w-4 rounded-full flex items-center justify-center">{wishlistItems.length}</span>}
           </Link>
@@ -156,6 +161,7 @@ const Header = () => {
           <Link to="/archive?category=health-recovery" className="hover:text-white transition-colors">مفاصل و ریکاوری</Link>
           <Link to="/archive?category=pharma-medical" className="hover:text-white transition-colors">داروخانه ورزشی</Link>
           <Link to="/archive?category=gear-accessories" className="hover:text-white transition-colors">تجهیزات و شیکر</Link>
+          <Link to="/coaching" className="mr-auto text-primary hover:text-primary-hover font-black flex items-center gap-1.5">✦ دریافت برنامه و مربی‌گری آنلاین</Link>
         </div>
 
         {/* پنل مگامنو کشویی دو ستونه */}
