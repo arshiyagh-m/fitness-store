@@ -32,7 +32,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/settings', settingRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use('/api/gateway', paymentRoutes);
 app.use('/api/coaching', coachingRoutes);
 
 const __dirname = path.resolve();

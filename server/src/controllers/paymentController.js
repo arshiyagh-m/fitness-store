@@ -62,7 +62,7 @@ export const requestDigipayPayment = asyncHandler(async (req, res) => {
     // ساخت آدرس بازگشت دقیق بر اساس دامنه سایت
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
     const host = req.get('host');
-    const callbackUrl = `${protocol}://${host}/api/payment/digipay/callback?orderId=${order._id}`;
+    const callbackUrl = `${protocol}://${host}/api/gateway/digipay/callback?orderId=${order._id}`;
 
     // تبدیل تومان به ریال برای شاپرک/دیجی‌پی
     const amountInRials = Math.round(Number(order.totalPrice) * 10);
@@ -121,12 +121,12 @@ export const requestDigipayPayment = asyncHandler(async (req, res) => {
 });
 
 // @desc    بازگشت از درگاه دیجی‌پی و تایید نهایی (Verify)
-// @route   GET & POST /api/payment/digipay/callback
+// @route   GET & POST /api/gateway/digipay/callback
 export const verifyDigipayCallback = asyncHandler(async (req, res) => {
   const params = { ...req.query, ...req.body };
   const { orderId, trackingCode, providerId, result } = params;
 
-  const clientFailUrl = orderId ? `/payment/${orderId}?status=failed` : '/cart';
+  const clientFailUrl = orderId ? `/gateway/${orderId}?status=failed` : '/cart';
 
   if (!orderId) {
     return res.redirect(clientFailUrl);
@@ -144,11 +144,11 @@ export const verifyDigipayCallback = asyncHandler(async (req, res) => {
 
   // بررسی وضعیت اولیه بازگشت از بانک
   if (result && String(result).toUpperCase() !== 'SUCCESS' && String(result) !== '0') {
-    return res.redirect(`/payment/${order._id}?status=canceled`);
+    return res.redirect(`/gateway/${order._id}?status=canceled`);
   }
 
   if (!trackingCode) {
-    return res.redirect(`/payment/${order._id}?status=failed`);
+    return res.redirect(`/gateway/${order._id}?status=failed`);
   }
 
   try {
@@ -185,10 +185,10 @@ export const verifyDigipayCallback = asyncHandler(async (req, res) => {
 
       return res.redirect(`/order/${order._id}/success`);
     } else {
-      return res.redirect(`/payment/${order._id}?status=verify_failed`);
+      return res.redirect(`/gateway/${order._id}?status=verify_failed`);
     }
   } catch (error) {
     console.error('DigiPay Verify Error:', error.response?.data || error.message);
-    return res.redirect(`/payment/${order._id}?status=error`);
+    return res.redirect(`/gateway/${order._id}?status=error`);
   }
 });
