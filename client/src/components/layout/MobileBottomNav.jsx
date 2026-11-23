@@ -16,7 +16,7 @@ const MobileBottomNav = () => {
   const totalWishlist = wishlistItems.length;
 
   // در صفحات ادمین یا درگاه پرداخت این نوار پنهان شود
-  if (pathname.startsWith('/admin') || pathname.startsWith('/payment')) return null;
+  if (pathname.startsWith('/admin') || pathname.startsWith('/gateway')) return null;
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 px-3 py-2 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] font-sans" dir="rtl">

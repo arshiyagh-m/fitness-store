@@ -49,7 +49,7 @@ const AppRoutes = () => {
   const location = useLocation();
   const { user } = useAuthStore();
   const isAdminPath = location.pathname.startsWith('/admin');
-  const isAuthPage = location.pathname === '/login' || location.pathname.startsWith('/payment');
+  const isAuthPage = location.pathname === '/login' || location.pathname.startsWith('/gateway');
 
   if (isAdminPath) {
     if (!user) return <Navigate to="/login" replace />;
@@ -87,7 +87,7 @@ const AppRoutes = () => {
           <Route path="/product/:slug" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/payment/:id" element={<PaymentGateway />} />
+          <Route path="/gateway/:id" element={<PaymentGateway />} />
           <Route path="/order/:id/success" element={<OrderSuccess />} />
           <Route path="/login" element={<Login />} />
           <Route path="/archive" element={<Archive />} />

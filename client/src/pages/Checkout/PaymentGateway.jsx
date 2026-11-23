@@ -63,7 +63,7 @@ const PaymentGateway = () => {
     setPaying(true);
     setErrorMsg('');
     try {
-      const { data } = await api.post('/payment/digipay/request', { orderId: id });
+      const { data } = await api.post('/gateway/digipay/request', { orderId: id });
       if (data?.redirectUrl) {
         window.location.href = data.redirectUrl;
       } else {
