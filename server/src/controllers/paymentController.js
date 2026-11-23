@@ -8,6 +8,12 @@ const getDigipayBaseUrl = (sandbox) =>
     ? 'https://uatbusiness.mydigipay.info/digipay/api'
     : 'https://api.mydigipay.com/digipay/api';
 
+const toEnglishDigits = (str) =>
+  String(str || '')
+    .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/\s+/g, '');
+
 // دریافت توکن دسترسی OAuth از دیجی‌پی
 const getDigipayAccessToken = async (setting) => {
   const { digipayUsername, digipayPassword, digipayClientId, digipayClientSecret, digipaySandbox } = setting;
@@ -20,7 +26,7 @@ const getDigipayAccessToken = async (setting) => {
   const basicAuth = Buffer.from(`${digipayClientId}:${digipayClientSecret}`).toString('base64');
 
   const params = new URLSearchParams();
-  params.append('username', digipayUsername);
+  params.append('username', digipayUsername.trim());
   params.append('password', digipayPassword);
   params.append('grant_type', 'password');
 
@@ -36,7 +42,7 @@ const getDigipayAccessToken = async (setting) => {
 };
 
 // @desc    ایجاد تیکت پرداخت دیجی‌پی و دریافت لینک انتقال به بانک
-// @route   POST /api/payment/digipay/request
+// @route   POST /api/gateway/digipay/request
 export const requestDigipayPayment = asyncHandler(async (req, res) => {
   const { orderId } = req.body;
   const order = await Order.findById(orderId);
@@ -64,27 +70,19 @@ export const requestDigipayPayment = asyncHandler(async (req, res) => {
     const host = req.get('host');
     const callbackUrl = `${protocol}://${host}/api/gateway/digipay/callback?orderId=${order._id}`;
 
-    // تبدیل تومان به ریال برای شاپرک/دیجی‌پی
+    // تبدیل تومان به ریال و نرمال‌سازی شماره موبایل و شناسه سفارش
     const amountInRials = Math.round(Number(order.totalPrice) * 10);
-    const providerId = `${order.invoiceNumber || order._id.toString().slice(-8)}-${Date.now().toString().slice(-4)}`;
+    let cellNumber = toEnglishDigits(order.shippingAddress?.phone);
+    if (cellNumber.startsWith('+98')) cellNumber = '0' + cellNumber.slice(3);
+    if (cellNumber.startsWith('98') && cellNumber.length === 12) cellNumber = '0' + cellNumber.slice(2);
+
+    const providerId = `${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
     const payload = {
       amount: amountInRials,
-      cellNumber: order.shippingAddress?.phone || '',
+      cellNumber,
       providerId,
       callbackUrl,
-      basketDetailsDto: {
-        items: order.orderItems.map((item, idx) => ({
-          sellerId: 'team9',
-          supplierId: 'team9',
-          productCode: String(item.product || idx + 1),
-          brand: 'Team9',
-          productType: 1,
-          count: Number(item.qty) || 1,
-          categoryId: 'supplements',
-        })),
-        basketId: String(order._id),
-      },
     };
 
     const { data } = await axios.post(`${baseUrl}/tickets/business?type=11`, payload, {
@@ -97,7 +95,6 @@ export const requestDigipayPayment = asyncHandler(async (req, res) => {
     });
 
     if (data && data.redirectUrl) {
-      // ذخیره موقت شماره تیکت در سفارش
       order.paymentResult = {
         id: data.ticket || providerId,
         status: 'PENDING_DIGIPAY',
@@ -110,10 +107,13 @@ export const requestDigipayPayment = asyncHandler(async (req, res) => {
       throw new Error(data?.result?.message || 'پاسخ نامعتبر از درگاه دیجی‌پی');
     }
   } catch (error) {
-    console.error('DigiPay Full Error:', JSON.stringify(error.response?.data || error.message));
-    const rawDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+    const resData = error.response?.data;
+    console.error('DigiPay Ticket Error:', JSON.stringify(resData || error.message));
+    const statusInfo = resData?.result?.status ? ` (کد خطا: ${resData.result.status})` : '';
     const apiMsg =
-      (error.response?.data?.result?.message ? `${error.response.data.result.message} | ${rawDetail}` : rawDetail) ||
+      (resData?.result?.message ? `${resData.result.message}${statusInfo}` : null) ||
+      resData?.error_description ||
+      error.message ||
       'خطا در اتصال به درگاه دیجی‌پی';
     res.status(400);
     throw new Error(apiMsg);
@@ -137,12 +137,10 @@ export const verifyDigipayCallback = asyncHandler(async (req, res) => {
     return res.redirect('/cart');
   }
 
-  // اگر قبلاً تایید شده، مستقیم به صفحه فاکتور برود
   if (order.isPaid) {
     return res.redirect(`/order/${order._id}/success`);
   }
 
-  // بررسی وضعیت اولیه بازگشت از بانک
   if (result && String(result).toUpperCase() !== 'SUCCESS' && String(result) !== '0') {
     return res.redirect(`/gateway/${order._id}?status=canceled`);
   }
@@ -155,12 +153,11 @@ export const verifyDigipayCallback = asyncHandler(async (req, res) => {
     const setting = await Setting.findOne();
     const { token, baseUrl } = await getDigipayAccessToken(setting);
 
-    // ارسال درخواست Verify به دیجی‌پی جهت قطعی‌سازی تراکنش
     const { data } = await axios.post(
       `${baseUrl}/purchases/verify/${trackingCode}`,
       {
         trackingCode,
-        providerId: providerId || order.invoiceNumber,
+        providerId: providerId || order.paymentResult?.id || order.invoiceNumber,
       },
       {
         headers: {
