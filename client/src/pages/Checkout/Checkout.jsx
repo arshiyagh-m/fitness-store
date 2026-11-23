@@ -93,8 +93,7 @@ const Checkout = () => {
       };
 
       const { data } = await api.post('/orders', orderData);
-      clearCart();
-      navigate(`/gateway/${data._id}`);
+      navigate(`/gateway/${data._id}`, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'خطا در ثبت سفارش');
       setIsLoading(false);

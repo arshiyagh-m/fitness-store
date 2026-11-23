@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, Package, Printer, Home, ShoppingBag, MapPin, Truck, Phone, ShieldCheck, AlertCircle, MessageSquare } from 'lucide-react';
 import api from '../../services/api';
+import useCartStore from '../../store/cartStore';
 import { formatPrice } from '../../utils/formatters';
 
 const OrderSuccess = () => {
   const { id } = useParams();
+  const { clearCart } = useCartStore();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -14,6 +16,7 @@ const OrderSuccess = () => {
       try {
         const { data } = await api.get(`/orders/${id}`);
         setOrder(data);
+        if (data?.isPaid) clearCart();
         setLoading(false);
       } catch (err) {
         setLoading(false);
