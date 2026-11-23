@@ -26,8 +26,13 @@ const SettingSchema = new mongoose.Schema({
   shippingMahexPrice: { type: Number, default: 95000 },
   freeShippingThreshold: { type: Number, default: 1500000 },
 
-  // ۴. درگاه بانکی شاپرک و وب‌سرویس پیامک
+  // ۴. درگاه بانکی شاپرک (دیجی‌پی / زرین‌پال) و وب‌سرویس پیامک
   paymentGatewayProvider: { type: String, default: 'simulator' },
+  digipayUsername: { type: String, default: '' },
+  digipayPassword: { type: String, default: '' },
+  digipayClientId: { type: String, default: '' },
+  digipayClientSecret: { type: String, default: '' },
+  digipaySandbox: { type: Boolean, default: false },
   zarinpalMerchantId: { type: String, default: '' },
   zarinpalSandbox: { type: Boolean, default: false },
   smsProvider: { type: String, default: 'simulator' },

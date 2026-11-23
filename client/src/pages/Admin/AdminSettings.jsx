@@ -32,6 +32,11 @@ const AdminSettings = () => {
     freeShippingThreshold: 1500000,
 
     paymentGatewayProvider: 'simulator',
+    digipayUsername: '',
+    digipayPassword: '',
+    digipayClientId: '',
+    digipayClientSecret: '',
+    digipaySandbox: false,
     zarinpalMerchantId: '',
     zarinpalSandbox: false,
     smsProvider: 'simulator',
@@ -273,10 +278,10 @@ const AdminSettings = () => {
               <ShieldCheck size={18} className="text-primary"/> اتصال بدون کدنویسی درگاه بانکی شاپرک و وب‌سرویس پیامک
             </h3>
 
-            {/* درگاه شاپرک */}
+            {/* درگاه شاپرک (دیجی‌پی یکپارچه) */}
             <div className="p-6 bg-gray-50 rounded-2xl border border-gray-200 space-y-4">
               <h4 className="font-bold text-xs text-gray-900 flex items-center gap-1.5">
-                <DollarSign size={16} className="text-emerald-600"/> تنظیمات درگاه بانکی شاپرک (زرین‌پال / سداد)
+                <DollarSign size={16} className="text-emerald-600"/> تنظیمات درگاه پرداخت یکپارچه دیجی‌پی (DigiPay UPG)
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -287,17 +292,66 @@ const AdminSettings = () => {
                     className="w-full px-4 py-2.5 bg-white border rounded-xl text-xs font-bold outline-none focus:border-primary"
                   >
                     <option value="simulator">شبیه‌ساز تستی (بدون کسر وجه از کارت)</option>
-                    <option value="zarinpal">درگاه زنده زرین‌پال / شاپرک رسمی</option>
+                    <option value="digipay">درگاه یکپارچه دیجی‌پی (DigiPay زنده)</option>
                   </select>
                 </div>
+
+                <div className="flex items-center pt-5">
+                  <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={settings.digipaySandbox || false}
+                      onChange={e => setSettings({...settings, digipaySandbox: e.target.checked})}
+                      className="w-4 h-4 accent-primary"
+                    />
+                    فعال‌سازی محیط آزمایشی دیجی‌پی (Sandbox / UAT)
+                  </label>
+                </div>
+
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">کد مرچنت درگاه (Merchant ID)</label>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">نام کاربری (Username)</label>
                   <input 
                     type="text" 
                     dir="ltr"
-                    value={settings.zarinpalMerchantId} 
-                    onChange={e => setSettings({...settings, zarinpalMerchantId: e.target.value})}
-                    placeholder="کد ۳۶ رقمی مرچنت درگاه"
+                    value={settings.digipayUsername || ''} 
+                    onChange={e => setSettings({...settings, digipayUsername: e.target.value})}
+                    placeholder="نام کاربری دریافتی از دیجی‌پی"
+                    className="w-full px-4 py-2.5 bg-white border rounded-xl text-xs font-mono text-left outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">رمز عبور (Password)</label>
+                  <input 
+                    type="password" 
+                    dir="ltr"
+                    value={settings.digipayPassword || ''} 
+                    onChange={e => setSettings({...settings, digipayPassword: e.target.value})}
+                    placeholder="رمز عبور درگاه دیجی‌پی"
+                    className="w-full px-4 py-2.5 bg-white border rounded-xl text-xs font-mono text-left outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">شناسه محرمانه (Client_Id)</label>
+                  <input 
+                    type="text" 
+                    dir="ltr"
+                    value={settings.digipayClientId || ''} 
+                    onChange={e => setSettings({...settings, digipayClientId: e.target.value})}
+                    placeholder="مثال: yourname-client-id"
+                    className="w-full px-4 py-2.5 bg-white border rounded-xl text-xs font-mono text-left outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">رمز عبور محرمانه (Client_Secret)</label>
+                  <input 
+                    type="password" 
+                    dir="ltr"
+                    value={settings.digipayClientSecret || ''} 
+                    onChange={e => setSettings({...settings, digipayClientSecret: e.target.value})}
+                    placeholder="کلید Client Secret دیجی‌پی"
                     className="w-full px-4 py-2.5 bg-white border rounded-xl text-xs font-mono text-left outline-none focus:border-primary"
                   />
                 </div>

@@ -13,6 +13,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
 import settingRoutes from './routes/settingRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 import coachingRoutes from './routes/coachingRoutes.js';
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/settings', settingRoutes);
+app.use('/api/payment', paymentRoutes);
 app.use('/api/coaching', coachingRoutes);
 
 const __dirname = path.resolve();
