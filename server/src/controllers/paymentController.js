@@ -110,10 +110,10 @@ export const requestDigipayPayment = asyncHandler(async (req, res) => {
       throw new Error(data?.result?.message || 'پاسخ نامعتبر از درگاه دیجی‌پی');
     }
   } catch (error) {
+    console.error('DigiPay Full Error:', JSON.stringify(error.response?.data || error.message));
+    const rawDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
     const apiMsg =
-      error.response?.data?.result?.message ||
-      error.response?.data?.error_description ||
-      error.message ||
+      (error.response?.data?.result?.message ? `${error.response.data.result.message} | ${rawDetail}` : rawDetail) ||
       'خطا در اتصال به درگاه دیجی‌پی';
     res.status(400);
     throw new Error(apiMsg);
